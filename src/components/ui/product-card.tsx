@@ -5,6 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 
+import {
+  extractModelFromSummary,
+  removeModelLine,
+  splitProductDescriptionLines,
+} from "@/lib/product-description";
 import { formatPen } from "@/lib/format";
 import { calculateSimulatedStock } from "@/lib/stock";
 import { createWhatsAppProductLink } from "@/lib/whatsapp";
@@ -28,6 +33,12 @@ export function ProductCard({ product, index }: ProductCardProps) {
     [product.baseStock, product.id],
   );
   const whatsappLink = createWhatsAppProductLink(product.name, product.price);
+  const modelValue = (product.model?.trim() || extractModelFromSummary(product.summary) || "").trim();
+  const descriptionPreviewLines = useMemo(() => {
+    const rawLines = splitProductDescriptionLines(product.summary);
+    const cleanLines = modelValue ? removeModelLine(rawLines) : rawLines;
+    return cleanLines.slice(0, 4);
+  }, [modelValue, product.summary]);
 
   return (
     <motion.article
@@ -68,7 +79,20 @@ export function ProductCard({ product, index }: ProductCardProps) {
             {product.name}
           </h3>
         </Link>
-        <p className="mt-2 text-xs text-slate-600">{product.summary}</p>
+
+        {modelValue ? (
+          <p className="mt-2 text-xs font-medium text-slate-700">
+            <span className="text-slate-500">Modelo:</span> {modelValue}
+          </p>
+        ) : null}
+
+        <ul className="mt-2 grid gap-1 text-xs leading-relaxed text-slate-600">
+          {descriptionPreviewLines.map((line) => (
+            <li key={`${product.id}-${line}`} className="max-h-[2.8rem] overflow-hidden whitespace-pre-line">
+              {line}
+            </li>
+          ))}
+        </ul>
 
         <div className="mt-4">
           <p className="text-2xl font-bold tracking-tight text-slate-950">

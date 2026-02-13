@@ -14,6 +14,7 @@ export interface Product {
   slug: string;
   name: string;
   category: ProductCategory;
+  model?: string;
   summary: string;
   highlights: string[];
   tags: string[];

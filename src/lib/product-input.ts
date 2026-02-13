@@ -11,6 +11,7 @@ interface ProductPayload {
   slug?: unknown;
   name?: unknown;
   category?: unknown;
+  model?: unknown;
   summary?: unknown;
   highlights?: unknown;
   tags?: unknown;
@@ -85,6 +86,7 @@ export function normalizeProductPayload(input: ProductPayload): Product {
 
   const id = normalizeString(input.id) || slugRaw;
   const summary = normalizeString(input.summary);
+  const model = normalizeString(input.model);
   const image = normalizeString(input.image);
   const badgeText = normalizeString(input.badgeText);
   const conditionLabel = normalizeString(input.conditionLabel);
@@ -114,6 +116,7 @@ export function normalizeProductPayload(input: ProductPayload): Product {
     slug: slugRaw,
     name,
     category: normalizeCategory(input.category),
+    model: model || undefined,
     summary,
     highlights: normalizeStringArray(input.highlights),
     tags: normalizeStringArray(input.tags),

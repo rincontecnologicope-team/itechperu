@@ -6,6 +6,11 @@ import { notFound } from "next/navigation";
 import { WhatsAppLink } from "@/components/ui/whatsapp-link";
 import { siteConfig } from "@/config/site";
 import { formatPen } from "@/lib/format";
+import {
+  extractModelFromSummary,
+  removeModelLine,
+  splitProductDescriptionLines,
+} from "@/lib/product-description";
 import { getProductBySlug } from "@/lib/catalog";
 import { calculateSimulatedStock } from "@/lib/stock";
 import { createWhatsAppProductLink } from "@/lib/whatsapp";
@@ -60,6 +65,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const stock = calculateSimulatedStock(product.id, product.baseStock);
   const whatsappLink = createWhatsAppProductLink(product.name, product.price);
+  const modelValue = (product.model?.trim() || extractModelFromSummary(product.summary) || "").trim();
+  const descriptionLines = removeModelLine(splitProductDescriptionLines(product.summary));
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]">
@@ -90,7 +97,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-slate-950">
               {product.name}
             </h1>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600">{product.summary}</p>
+
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Modelo
+              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">
+                {modelValue || "Por confirmar con asesor"}
+              </p>
+            </div>
+
+            {descriptionLines.length > 0 ? (
+              <ul className="mt-4 grid gap-2">
+                {descriptionLines.map((line, index) => (
+                  <li key={`${index}-${line}`} className="text-sm leading-relaxed text-slate-600">
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
 
             <div className="mt-6">
               <p className="text-4xl font-bold tracking-tight text-slate-950">

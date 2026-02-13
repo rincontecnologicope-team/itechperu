@@ -27,6 +27,7 @@ interface ProductDraft {
   slug: string;
   name: string;
   category: Product["category"];
+  model: string;
   summary: string;
   highlightsText: string;
   tagsText: string;
@@ -54,6 +55,7 @@ function emptyDraft(): ProductDraft {
     slug: "",
     name: "",
     category: "Celular",
+    model: "",
     summary: "",
     highlightsText: "",
     tagsText: "",
@@ -76,6 +78,7 @@ function draftFromProduct(product: Product): ProductDraft {
     slug: product.slug,
     name: product.name,
     category: product.category,
+    model: product.model ?? "",
     summary: product.summary,
     highlightsText: product.highlights.join(", "),
     tagsText: product.tags.join(", "),
@@ -187,6 +190,7 @@ export function AdminDashboard({
         slug: draft.slug || slugify(draft.name),
         name: draft.name,
         category: draft.category,
+        model: draft.model,
         summary: draft.summary,
         highlights: parseList(draft.highlightsText),
         tags: parseList(draft.tagsText),
@@ -346,7 +350,7 @@ export function AdminDashboard({
           </aside>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-3">
               <label className="grid gap-1">
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Nombre
@@ -374,6 +378,17 @@ export function AdminDashboard({
                     </option>
                   ))}
                 </select>
+              </label>
+              <label className="grid gap-1">
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Modelo
+                </span>
+                <input
+                  value={draft.model}
+                  onChange={(event) => updateDraft("model", event.target.value)}
+                  placeholder="Ej: A1701 (Wi-Fi)"
+                  className="min-h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-900 outline-none focus:border-slate-900"
+                />
               </label>
             </div>
 
@@ -441,12 +456,17 @@ export function AdminDashboard({
 
             <label className="mt-3 grid gap-1">
               <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Descripcion corta
+                Descripcion (una linea por especificacion)
               </span>
               <textarea
-                rows={3}
+                rows={6}
                 value={draft.summary}
                 onChange={(event) => updateDraft("summary", event.target.value)}
+                placeholder="iPad Pro 10.5 - 256GB (Impecable)
+Modelo: A1701 (Wi-Fi) - Estado 9.5/10
+Pantalla: Retina 10.5 ProMotion 120Hz
+Espacio: 256GB
+Rendimiento: Chip A10X Fusion"
                 className="rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900"
               />
             </label>

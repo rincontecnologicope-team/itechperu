@@ -8,6 +8,7 @@ interface ProductDoc {
   slug: string;
   name: string;
   category: string;
+  model?: string | null;
   summary: string;
   highlights: string[] | null;
   tags: string[] | null;
@@ -49,6 +50,7 @@ function mapDocToProduct(data: ProductDoc): Product {
     slug: data.slug,
     name: data.name,
     category: normalizeCategory(data.category),
+    model: typeof data.model === "string" && data.model.trim() ? data.model.trim() : undefined,
     summary: data.summary,
     highlights: data.highlights ?? [],
     tags: data.tags ?? [],
@@ -71,6 +73,7 @@ function mapProductToDoc(product: Product): ProductDoc {
     slug: product.slug,
     name: product.name,
     category: product.category,
+    model: product.model ?? null,
     summary: product.summary,
     highlights: product.highlights,
     tags: product.tags,
