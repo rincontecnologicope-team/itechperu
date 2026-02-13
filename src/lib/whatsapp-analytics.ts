@@ -4,6 +4,8 @@ import { getFirebaseFirestore, isFirebaseCatalogConfigured } from "@/lib/firebas
 import type { WhatsAppClickEventInput, WhatsAppMetrics } from "@/types/whatsapp-analytics";
 
 const COLLECTION = "whatsapp_events";
+const ANALYTICS_TIMEZONE = "America/Lima";
+const DAILY_SERIES_DAYS = 14;
 
 interface WhatsAppEventDoc {
   source: string;
@@ -48,6 +50,43 @@ function sortMapDesc(map: Map<string, number>) {
     .map(([key, value]) => ({ key, value }));
 }
 
+function formatDayKey(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: ANALYTICS_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const year = parts.find((item) => item.type === "year")?.value ?? "0000";
+  const month = parts.find((item) => item.type === "month")?.value ?? "01";
+  const day = parts.find((item) => item.type === "day")?.value ?? "01";
+  return `${year}-${month}-${day}`;
+}
+
+function formatDayLabel(date: Date): string {
+  return new Intl.DateTimeFormat("es-PE", {
+    timeZone: ANALYTICS_TIMEZONE,
+    day: "2-digit",
+    month: "short",
+  }).format(date);
+}
+
+function buildDailySeries(dayCountMap: Map<string, number>) {
+  const now = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const series = [];
+  for (let offset = DAILY_SERIES_DAYS - 1; offset >= 0; offset -= 1) {
+    const date = new Date(now - offset * dayMs);
+    const key = formatDayKey(date);
+    series.push({
+      date: key,
+      label: formatDayLabel(date),
+      count: dayCountMap.get(key) ?? 0,
+    });
+  }
+  return series;
+}
+
 export async function getWhatsAppMetrics(): Promise<WhatsAppMetrics> {
   const empty: WhatsAppMetrics = {
     totalClicks: 0,
@@ -55,6 +94,7 @@ export async function getWhatsAppMetrics(): Promise<WhatsAppMetrics> {
     last24HoursClicks: 0,
     bySource: [],
     topProducts: [],
+    dailySeries: [],
   };
 
   if (!isFirebaseCatalogConfigured()) {
@@ -75,6 +115,7 @@ export async function getWhatsAppMetrics(): Promise<WhatsAppMetrics> {
 
   const bySource = new Map<string, number>();
   const byProduct = new Map<string, number>();
+  const byDay = new Map<string, number>();
   let last7 = 0;
   let last24 = 0;
 
@@ -89,6 +130,8 @@ export async function getWhatsAppMetrics(): Promise<WhatsAppMetrics> {
 
     if (doc.createdAt instanceof Timestamp) {
       const createdAt = doc.createdAt.toMillis();
+      const dayKey = formatDayKey(new Date(createdAt));
+      byDay.set(dayKey, (byDay.get(dayKey) ?? 0) + 1);
       if (createdAt >= sevenDaysAgo) {
         last7 += 1;
       }
@@ -112,5 +155,6 @@ export async function getWhatsAppMetrics(): Promise<WhatsAppMetrics> {
         productName: item.key,
         count: item.value,
       })),
+    dailySeries: buildDailySeries(byDay),
   };
 }

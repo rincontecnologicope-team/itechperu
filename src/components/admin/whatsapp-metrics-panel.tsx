@@ -13,6 +13,7 @@ export function WhatsAppMetricsPanel({ initialMetrics, enabled }: WhatsAppMetric
   const [metrics, setMetrics] = useState<WhatsAppMetrics>(initialMetrics);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const maxDailyCount = Math.max(...metrics.dailySeries.map((item) => item.count), 1);
 
   async function refreshMetrics() {
     setLoading(true);
@@ -72,6 +73,37 @@ export function WhatsAppMetricsPanel({ initialMetrics, enabled }: WhatsAppMetric
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <article className="rounded-2xl border border-slate-200 p-4 lg:col-span-2">
+          <p className="text-sm font-semibold text-slate-900">Tendencia diaria (ultimos 14 dias)</p>
+          {metrics.dailySeries.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-500">Sin datos todavia.</p>
+          ) : (
+            <div className="mt-4 overflow-x-auto">
+              <div className="min-w-[560px]">
+                <div
+                  className="grid h-44 items-end gap-2"
+                  style={{ gridTemplateColumns: `repeat(${metrics.dailySeries.length}, minmax(0, 1fr))` }}
+                >
+                  {metrics.dailySeries.map((item) => {
+                    const heightPercent = Math.max(6, Math.round((item.count / maxDailyCount) * 100));
+                    return (
+                      <div key={item.date} className="flex h-full flex-col items-center justify-end gap-2">
+                        <div className="text-[11px] font-semibold text-slate-600">{item.count}</div>
+                        <div
+                          className="w-full rounded-t-md bg-gradient-to-t from-emerald-600 to-emerald-400"
+                          style={{ height: `${heightPercent}%` }}
+                          title={`${item.label}: ${item.count} clics`}
+                        />
+                        <div className="text-[10px] font-medium text-slate-500">{item.label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </article>
+
         <article className="rounded-2xl border border-slate-200 p-4">
           <p className="text-sm font-semibold text-slate-900">Por origen</p>
           <div className="mt-3 grid gap-2">

@@ -17,10 +17,17 @@ export interface WhatsAppProductMetric {
   count: number;
 }
 
+export interface WhatsAppDailyMetric {
+  date: string;
+  label: string;
+  count: number;
+}
+
 export interface WhatsAppMetrics {
   totalClicks: number;
   last7DaysClicks: number;
   last24HoursClicks: number;
   bySource: WhatsAppSourceMetric[];
   topProducts: WhatsAppProductMetric[];
+  dailySeries: WhatsAppDailyMetric[];
 }

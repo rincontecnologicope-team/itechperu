@@ -41,6 +41,7 @@ export default async function AdminPage() {
     last7DaysClicks: 0,
     bySource: [],
     topProducts: [],
+    dailySeries: [],
   };
 
   if (catalogConnected) {
