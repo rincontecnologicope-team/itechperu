@@ -16,7 +16,10 @@ npm run dev
 npm run lint
 npm run build
 npm run start
+npm run wait-deploy
 ```
+
+`wait-deploy` revisa la URL productiva y emite un beep cuando responde `200`.
 
 ## Estructura principal
 
