@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createWhatsAppGenericLink } from "@/lib/whatsapp";
 
 const headerMessage = "Hola quiero conocer sus productos disponibles de iTech Peru";
+const menuItemClasses =
+  "premium-highlight inline-flex min-h-10 items-center rounded-xl border border-transparent px-4 text-sm font-semibold text-slate-700 transition hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(200,164,90,0.35)]";
 
 export function Header() {
   return (
@@ -23,23 +25,17 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          <Link
-            href="#catalogo"
-            className="text-sm font-semibold text-slate-700 transition hover:text-slate-950"
-          >
+          <Link href="#catalogo" className={menuItemClasses}>
             Productos
           </Link>
-          <Link
-            href="#confianza"
-            className="text-sm font-semibold text-slate-700 transition hover:text-slate-950"
-          >
+          <Link href="#confianza" className={menuItemClasses}>
             Confianza
           </Link>
           <a
             href={createWhatsAppGenericLink(headerMessage)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-10 items-center rounded-xl bg-[var(--color-whatsapp)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-whatsapp-dark)]"
+            className="premium-highlight inline-flex min-h-10 items-center rounded-xl border border-transparent bg-[var(--color-whatsapp)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-whatsapp-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(200,164,90,0.35)]"
           >
             WhatsApp
           </a>
