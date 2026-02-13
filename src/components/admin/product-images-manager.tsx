@@ -3,6 +3,7 @@
 import { GripVertical, ImagePlus, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import type { DragEvent } from "react";
 
 import {
   moveProductImage,
@@ -23,6 +24,13 @@ function buildImageItems(images: ProductImage[]): ProductImage[] {
   return normalizeProductImages(images);
 }
 
+function extractImageFiles(fileList: FileList | null): File[] {
+  if (!fileList || fileList.length === 0) {
+    return [];
+  }
+  return Array.from(fileList).filter((file) => file.type.startsWith("image/"));
+}
+
 export function ProductImagesManager({
   images,
   enabled,
@@ -33,23 +41,25 @@ export function ProductImagesManager({
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [isFileDragOver, setIsFileDragOver] = useState(false);
   const [pendingOrderSave, setPendingOrderSave] = useState(false);
 
   const items = useMemo(() => buildImageItems(images), [images]);
 
-  async function uploadFiles(fileList: FileList) {
-    if (!enabled || fileList.length === 0) {
+  async function uploadFiles(files: File[]) {
+    if (!enabled || files.length === 0) {
       return;
     }
 
     setUploading(true);
     onUploadingChange?.(true);
+    setIsFileDragOver(false);
     setError("");
-    setStatus(`Subiendo ${fileList.length} imagen(es)...`);
+    setStatus(`Subiendo ${files.length} imagen(es)...`);
 
     try {
       const uploadedUrls: string[] = [];
-      for (const file of Array.from(fileList)) {
+      for (const file of files) {
         const formData = new FormData();
         formData.append("image", file);
         const response = await fetch("/api/admin/upload", {
@@ -82,7 +92,14 @@ export function ProductImagesManager({
     }
   }
 
-  function handleDrop(targetIndex: number) {
+  function handleDrop(event: DragEvent<HTMLElement>, targetIndex: number) {
+    event.preventDefault();
+    const droppedFiles = extractImageFiles(event.dataTransfer.files);
+    if (droppedFiles.length > 0) {
+      void uploadFiles(droppedFiles);
+      return;
+    }
+
     if (dragIndex === null || dragIndex === targetIndex) {
       setDragIndex(null);
       return;
@@ -95,7 +112,39 @@ export function ProductImagesManager({
   }
 
   return (
-    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+    <div
+      className={`mt-3 rounded-2xl border p-3 sm:p-4 ${
+        isFileDragOver ? "border-emerald-400 bg-emerald-50/40" : "border-slate-200 bg-slate-50"
+      }`}
+      onDragOver={(event) => {
+        const droppedFiles = extractImageFiles(event.dataTransfer.files);
+        if (droppedFiles.length > 0) {
+          event.preventDefault();
+          setIsFileDragOver(true);
+        }
+      }}
+      onDragEnter={(event) => {
+        const droppedFiles = extractImageFiles(event.dataTransfer.files);
+        if (droppedFiles.length > 0) {
+          event.preventDefault();
+          setIsFileDragOver(true);
+        }
+      }}
+      onDragLeave={(event) => {
+        const related = event.relatedTarget as Node | null;
+        if (!related || !event.currentTarget.contains(related)) {
+          setIsFileDragOver(false);
+        }
+      }}
+      onDrop={(event) => {
+        const droppedFiles = extractImageFiles(event.dataTransfer.files);
+        if (droppedFiles.length > 0) {
+          event.preventDefault();
+          void uploadFiles(droppedFiles);
+          setIsFileDragOver(false);
+        }
+      }}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -115,8 +164,8 @@ export function ProductImagesManager({
             className="hidden"
             disabled={!enabled || uploading}
             onChange={(event) => {
-              const files = event.target.files;
-              if (files && files.length > 0) {
+              const files = extractImageFiles(event.target.files);
+              if (files.length > 0) {
                 void uploadFiles(files);
               }
               event.target.value = "";
@@ -126,9 +175,14 @@ export function ProductImagesManager({
       </div>
 
       {items.length === 0 ? (
-        <p className="mt-3 rounded-xl border border-dashed border-slate-300 bg-white px-3 py-3 text-sm text-slate-500">
-          Todavia no hay imagenes. Sube al menos una para guardar el producto.
-        </p>
+        <div className="mt-3 rounded-xl border border-dashed border-slate-300 bg-white px-3 py-5 text-center">
+          <p className="text-sm font-semibold text-slate-700">
+            Todavia no hay imagenes. Sube al menos una para guardar el producto.
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Tambien puedes arrastrar imagenes desde tu PC y soltarlas aqui.
+          </p>
+        </div>
       ) : (
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {items.map((item, index) => (
@@ -136,8 +190,9 @@ export function ProductImagesManager({
               key={`${item.url}-${index}`}
               draggable={enabled}
               onDragStart={() => setDragIndex(index)}
+              onDragEnd={() => setDragIndex(null)}
               onDragOver={(event) => event.preventDefault()}
-              onDrop={() => handleDrop(index)}
+              onDrop={(event) => handleDrop(event, index)}
               className={`relative overflow-hidden rounded-xl border ${
                 item.isPrimary ? "border-emerald-400" : "border-slate-200"
               } bg-white`}
@@ -218,6 +273,12 @@ export function ProductImagesManager({
           ))}
         </div>
       )}
+
+      {items.length > 0 ? (
+        <p className="mt-2 text-xs text-slate-500">
+          Tip: tambien puedes arrastrar nuevas imagenes y soltarlas sobre esta galeria.
+        </p>
+      ) : null}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button

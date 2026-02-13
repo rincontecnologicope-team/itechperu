@@ -1,6 +1,11 @@
 import { randomUUID } from "crypto";
 
-import { getFirebaseBucket, getFirebaseFirestore, isFirebaseCatalogConfigured } from "@/lib/firebase-admin";
+import {
+  getFirebaseBucket,
+  getFirebaseFirestore,
+  getFirebaseStorageBucketCandidates,
+  isFirebaseCatalogConfigured,
+} from "@/lib/firebase-admin";
 import { normalizeProductColors } from "@/lib/product-colors";
 import { getPrimaryImageUrl, normalizeProductImages } from "@/lib/product-images";
 import type { Product, ProductBadgeType, ProductCategory } from "@/types/product";
@@ -165,25 +170,66 @@ export async function deleteFirebaseProduct(id: string): Promise<void> {
   await db.collection("products").doc(id).delete();
 }
 
+function isBucketNotFoundError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const raw = error as { message?: string; code?: string | number };
+  const message = String(raw.message ?? "");
+  const code = String(raw.code ?? "");
+
+  return (
+    /specified bucket does not exist/i.test(message) ||
+    /bucket.*not found/i.test(message) ||
+    /no such bucket/i.test(message) ||
+    code === "404" ||
+    code.toLowerCase().includes("not-found")
+  );
+}
+
 export async function uploadFirebaseProductImage(file: File): Promise<string> {
-  const bucket = getFirebaseBucket();
+  const bucketCandidates = getFirebaseStorageBucketCandidates();
+  if (bucketCandidates.length === 0) {
+    throw new Error("FIREBASE_STORAGE_BUCKET no configurado.");
+  }
+
   const cleanName = file.name.replace(/\s+/g, "-").toLowerCase();
   const path = `products/${Date.now()}-${Math.random().toString(16).slice(2)}-${cleanName}`;
-  const token = randomUUID();
   const buffer = Buffer.from(await file.arrayBuffer());
-  const object = bucket.file(path);
+  let lastBucketError: unknown;
 
-  await object.save(buffer, {
-    metadata: {
-      contentType: file.type || "application/octet-stream",
-      metadata: {
-        firebaseStorageDownloadTokens: token,
-      },
-      cacheControl: "public,max-age=3600",
-    },
-    public: false,
-    validation: "crc32c",
-  });
+  for (const candidate of bucketCandidates) {
+    const bucket = getFirebaseBucket(candidate);
+    const token = randomUUID();
+    const object = bucket.file(path);
 
-  return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+    try {
+      await object.save(buffer, {
+        metadata: {
+          contentType: file.type || "application/octet-stream",
+          metadata: {
+            firebaseStorageDownloadTokens: token,
+          },
+          cacheControl: "public,max-age=3600",
+        },
+        public: false,
+        validation: "crc32c",
+      });
+
+      return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+    } catch (error) {
+      lastBucketError = error;
+      if (isBucketNotFoundError(error)) {
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  const suffix =
+    lastBucketError instanceof Error ? ` Detalle: ${lastBucketError.message}` : "";
+  throw new Error(
+    `No se encontro un bucket de Storage valido. Revisa FIREBASE_STORAGE_BUCKET en variables de entorno.${suffix}`,
+  );
 }
