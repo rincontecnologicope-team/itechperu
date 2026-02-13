@@ -1,63 +1,63 @@
 import { catalogRepository } from "@/lib/catalog-repository";
 import {
-  deleteSupabaseProduct,
-  getSupabaseProductBySlug,
-  isSupabaseCatalogConfigured,
-  listSupabaseProducts,
-  upsertSupabaseProduct,
-} from "@/lib/catalog-supabase";
+  deleteFirebaseProduct,
+  getFirebaseProductBySlug,
+  isFirebaseCatalogConfigured,
+  listFirebaseProducts,
+  upsertFirebaseProduct,
+} from "@/lib/catalog-firebase";
 import type { Product } from "@/types/product";
 
 export async function getCatalogProducts(): Promise<Product[]> {
-  if (isSupabaseCatalogConfigured()) {
+  if (isFirebaseCatalogConfigured()) {
     try {
-      return await listSupabaseProducts();
+      return await listFirebaseProducts();
     } catch (error) {
-      console.error("Catalogo Supabase no disponible, usando fallback JSON.", error);
+      console.error("Catalogo Firebase no disponible, usando fallback JSON.", error);
     }
   }
   return catalogRepository.listProducts();
 }
 
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
-  const products = await catalogRepository.listProducts();
+  const products = await getCatalogProducts();
   return products.filter((product) => product.featured).slice(0, limit);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  if (isSupabaseCatalogConfigured()) {
+  if (isFirebaseCatalogConfigured()) {
     try {
-      return await getSupabaseProductBySlug(slug);
+      return await getFirebaseProductBySlug(slug);
     } catch (error) {
-      console.error("Producto Supabase no disponible, usando fallback JSON.", error);
+      console.error("Producto Firebase no disponible, usando fallback JSON.", error);
     }
   }
   return catalogRepository.getProductBySlug(slug);
 }
 
 export async function getAdminProducts(): Promise<Product[]> {
-  if (!isSupabaseCatalogConfigured()) {
+  if (!isFirebaseCatalogConfigured()) {
     throw new Error(
-      "Supabase no esta configurado. Define NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY.",
+      "Firebase no esta configurado. Define FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL y FIREBASE_PRIVATE_KEY.",
     );
   }
-  return listSupabaseProducts();
+  return listFirebaseProducts();
 }
 
 export async function saveAdminProduct(product: Product): Promise<Product> {
-  if (!isSupabaseCatalogConfigured()) {
+  if (!isFirebaseCatalogConfigured()) {
     throw new Error(
-      "Supabase no esta configurado. Define NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY.",
+      "Firebase no esta configurado. Define FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL y FIREBASE_PRIVATE_KEY.",
     );
   }
-  return upsertSupabaseProduct(product);
+  return upsertFirebaseProduct(product);
 }
 
 export async function removeAdminProduct(id: string): Promise<void> {
-  if (!isSupabaseCatalogConfigured()) {
+  if (!isFirebaseCatalogConfigured()) {
     throw new Error(
-      "Supabase no esta configurado. Define NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY.",
+      "Firebase no esta configurado. Define FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL y FIREBASE_PRIVATE_KEY.",
     );
   }
-  return deleteSupabaseProduct(id);
+  return deleteFirebaseProduct(id);
 }

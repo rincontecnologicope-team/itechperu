@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { AdminDashboard } from "@/components/admin/admin-dashboard";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getAdminProducts } from "@/lib/catalog";
-import { isSupabaseCatalogConfigured } from "@/lib/catalog-supabase";
+import { isFirebaseCatalogConfigured } from "@/lib/catalog-firebase";
 import type { Product } from "@/types/product";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const catalogConnected = isSupabaseCatalogConfigured();
+  const catalogConnected = isFirebaseCatalogConfigured();
   let products: Product[] = [];
 
   if (catalogConnected) {

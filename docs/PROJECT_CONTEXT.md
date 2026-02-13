@@ -3,7 +3,7 @@
 ## Frontend publico
 
 - Home y detalle de producto en App Router (`src/app/page.tsx`, `src/app/producto/[slug]/page.tsx`).
-- Catalogo consume Supabase cuando hay variables de entorno; si no, usa fallback JSON local.
+- Catalogo consume Firebase cuando hay variables de entorno; si no, usa fallback JSON local.
 
 ## Panel admin
 
@@ -25,5 +25,5 @@
 
 ## Datos
 
-- Acceso a catalogo y storage via Supabase (`src/lib/catalog-supabase.ts`)
+- Acceso a catalogo y storage via Firebase (`src/lib/catalog-firebase.ts`)
 - Normalizacion de payload admin (`src/lib/product-input.ts`)

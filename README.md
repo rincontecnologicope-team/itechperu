@@ -45,15 +45,15 @@ public/
   products/
   og/
 docs/
-  supabase-setup.md
+  firebase-setup.md
 ```
 
 ## Datos y escalabilidad
 
 - Lectura publica del catalogo:
-  - si hay Supabase configurado, usa DB remota.
-  - si no hay Supabase, usa fallback local `src/data/products.json`.
-- Panel admin (`/admin`) usa Supabase para guardar cambios en caliente.
+  - si hay Firebase configurado, usa Firestore remoto.
+  - si no hay Firebase, usa fallback local `src/data/products.json`.
+- Panel admin (`/admin`) usa Firebase para guardar cambios en caliente.
 
 ## WhatsApp dinamico por producto
 
@@ -72,16 +72,17 @@ NEXT_PUBLIC_WHATSAPP_PHONE=519XXXXXXXX
 - Login: `/admin/login`
 - Dashboard: `/admin`
 - Requiere `ADMIN_PASSWORD` y `ADMIN_SESSION_SECRET`.
-- Requiere Supabase (tabla `products` + storage bucket).
+- Requiere Firebase (Firestore + Storage).
 
 Variables requeridas:
 
 ```bash
 ADMIN_PASSWORD=define-una-contrasena-fuerte
 ADMIN_SESSION_SECRET=define-un-secreto-largo-y-unico
-NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=tu-service-role-key
-SUPABASE_BUCKET=product-images
+FIREBASE_PROJECT_ID=itechperu-1d1d4
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxx@itechperu-1d1d4.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_STORAGE_BUCKET=itechperu-1d1d4.firebasestorage.app
 ```
 
-Guia SQL completa en `docs/supabase-setup.md`.
+Guia completa en `docs/firebase-setup.md`.

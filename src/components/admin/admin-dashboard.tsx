@@ -49,7 +49,7 @@ function emptyDraft(): ProductDraft {
     highlightsText: "",
     tagsText: "",
     image: "",
-    badgeText: "🔥 Oferta",
+    badgeText: "Oferta",
     badgeType: "offer",
     conditionLabel: "9/10",
     price: "",
@@ -283,8 +283,8 @@ export function AdminDashboard({ initialProducts, catalogConnected }: AdminDashb
 
         {!catalogConnected ? (
           <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            Configura Supabase para habilitar el panel: `NEXT_PUBLIC_SUPABASE_URL`,
-            `SUPABASE_SERVICE_ROLE_KEY` y bucket `SUPABASE_BUCKET`.
+            Configura Firebase para habilitar el panel: `FIREBASE_PROJECT_ID`,
+            `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` y `FIREBASE_STORAGE_BUCKET`.
           </div>
         ) : null}
 
