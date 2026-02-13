@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { isAdminAuthenticated } from "@/lib/admin-auth";
-import { uploadFirebaseProductImage } from "@/lib/catalog-firebase";
+import { uploadProductImage } from "@/lib/product-image-storage";
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/jpg"]);
 const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024;
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const imageUrl = await uploadFirebaseProductImage(file);
+    const imageUrl = await uploadProductImage(file);
     return NextResponse.json({ imageUrl });
   } catch (error) {
     const message = error instanceof Error ? error.message : "No se pudo subir imagen.";

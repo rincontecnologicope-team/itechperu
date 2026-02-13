@@ -11,6 +11,7 @@ import {
   removeModelLine,
   splitProductDescriptionLines,
 } from "@/lib/product-description";
+import { getPrimaryImageUrl } from "@/lib/product-images";
 import { getProductBySlug } from "@/lib/catalog";
 import { calculateSimulatedStock } from "@/lib/stock";
 import { createWhatsAppProductLink } from "@/lib/whatsapp";
@@ -35,6 +36,7 @@ export async function generateMetadata({
   }
 
   const title = `${product.name} - ${formatPen(product.price)}`;
+  const primaryImage = getPrimaryImageUrl(product);
   const description = `${product.summary} Equipo importado de USA, estado ${product.conditionLabel}, entrega segura y atencion inmediata por WhatsApp.`;
 
   return {
@@ -46,7 +48,7 @@ export async function generateMetadata({
       url: `${siteConfig.url}/producto/${product.slug}`,
       images: [
         {
-          url: product.image,
+          url: primaryImage,
           width: 1200,
           height: 630,
           alt: product.name,
@@ -65,6 +67,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const stock = calculateSimulatedStock(product.id, product.baseStock);
   const whatsappLink = createWhatsAppProductLink(product.name, product.price);
+  const primaryImage = getPrimaryImageUrl(product);
   const modelValue = (product.model?.trim() || extractModelFromSummary(product.summary) || "").trim();
   const descriptionLines = removeModelLine(splitProductDescriptionLines(product.summary));
 
@@ -81,7 +84,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
           <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_40px_rgba(15,23,42,0.08)]">
             <Image
-              src={product.image}
+              src={primaryImage}
               alt={product.name}
               fill
               priority

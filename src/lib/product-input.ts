@@ -1,3 +1,4 @@
+import { normalizeProductImages } from "@/lib/product-images";
 import { slugify } from "@/lib/slug";
 import {
   PRODUCT_CATEGORIES,
@@ -13,6 +14,7 @@ interface ProductPayload {
   category?: unknown;
   model?: unknown;
   summary?: unknown;
+  images?: unknown;
   highlights?: unknown;
   tags?: unknown;
   image?: unknown;
@@ -88,14 +90,16 @@ export function normalizeProductPayload(input: ProductPayload): Product {
   const summary = normalizeString(input.summary);
   const model = normalizeString(input.model);
   const image = normalizeString(input.image);
+  const images = normalizeProductImages(input.images, image);
+  const primaryImage = images.find((item) => item.isPrimary)?.url ?? images[0]?.url ?? "";
   const badgeText = normalizeString(input.badgeText);
   const conditionLabel = normalizeString(input.conditionLabel);
 
   if (!summary) {
     throw new Error("La descripcion corta (summary) es obligatoria.");
   }
-  if (!image) {
-    throw new Error("La imagen del producto es obligatoria.");
+  if (!primaryImage) {
+    throw new Error("Debes cargar al menos una imagen del producto.");
   }
   if (!badgeText) {
     throw new Error("El texto de badge es obligatorio.");
@@ -117,10 +121,11 @@ export function normalizeProductPayload(input: ProductPayload): Product {
     name,
     category: normalizeCategory(input.category),
     model: model || undefined,
+    images,
     summary,
     highlights: normalizeStringArray(input.highlights),
     tags: normalizeStringArray(input.tags),
-    image,
+    image: primaryImage,
     badgeText,
     badgeType: normalizeBadgeType(input.badgeType),
     conditionLabel,

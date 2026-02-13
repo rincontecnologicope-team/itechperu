@@ -1,7 +1,14 @@
 import { randomUUID } from "crypto";
 
 import { getFirebaseBucket, getFirebaseFirestore, isFirebaseCatalogConfigured } from "@/lib/firebase-admin";
+import { getPrimaryImageUrl, normalizeProductImages } from "@/lib/product-images";
 import type { Product, ProductBadgeType, ProductCategory } from "@/types/product";
+
+interface ProductImageDoc {
+  url: string;
+  order: number;
+  isPrimary: boolean;
+}
 
 interface ProductDoc {
   id: string;
@@ -9,6 +16,7 @@ interface ProductDoc {
   name: string;
   category: string;
   model?: string | null;
+  images?: ProductImageDoc[] | null;
   summary: string;
   highlights: string[] | null;
   tags: string[] | null;
@@ -45,16 +53,20 @@ function normalizeCategory(value: string): ProductCategory {
 }
 
 function mapDocToProduct(data: ProductDoc): Product {
+  const images = normalizeProductImages(data.images, data.image);
+  const primaryImage = images.find((item) => item.isPrimary)?.url ?? images[0]?.url ?? data.image;
+
   return {
     id: data.id,
     slug: data.slug,
     name: data.name,
     category: normalizeCategory(data.category),
     model: typeof data.model === "string" && data.model.trim() ? data.model.trim() : undefined,
+    images,
     summary: data.summary,
     highlights: data.highlights ?? [],
     tags: data.tags ?? [],
-    image: data.image,
+    image: primaryImage,
     badgeText: data.badgeText,
     badgeType: normalizeBadgeType(data.badgeType),
     conditionLabel: data.conditionLabel,
@@ -68,16 +80,27 @@ function mapDocToProduct(data: ProductDoc): Product {
 }
 
 function mapProductToDoc(product: Product): ProductDoc {
+  const images = normalizeProductImages(product.images, product.image);
+  const primaryImage = getPrimaryImageUrl({
+    image: product.image,
+    images,
+  });
+
   return {
     id: product.id,
     slug: product.slug,
     name: product.name,
     category: product.category,
     model: product.model ?? null,
+    images: images.map((image) => ({
+      url: image.url,
+      order: image.order,
+      isPrimary: image.isPrimary,
+    })),
     summary: product.summary,
     highlights: product.highlights,
     tags: product.tags,
-    image: product.image,
+    image: primaryImage,
     badgeText: product.badgeText,
     badgeType: product.badgeType,
     conditionLabel: product.conditionLabel,

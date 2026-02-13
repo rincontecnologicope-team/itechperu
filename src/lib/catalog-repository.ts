@@ -1,8 +1,13 @@
 import catalogSource from "@/data/products.json";
+import { getPrimaryImageUrl, normalizeProductImages } from "@/lib/product-images";
 import type { Product } from "@/types/product";
 
+interface CatalogProductRaw extends Omit<Product, "images"> {
+  images?: Product["images"];
+}
+
 interface CatalogDataFile {
-  products: Product[];
+  products: CatalogProductRaw[];
 }
 
 export interface CatalogRepository {
@@ -14,7 +19,18 @@ class JsonCatalogRepository implements CatalogRepository {
   private readonly products: Product[];
 
   constructor(source: CatalogDataFile) {
-    this.products = source.products;
+    this.products = source.products.map((product) => {
+      const images = normalizeProductImages((product as Partial<Product>).images, product.image);
+      const primaryImage = getPrimaryImageUrl({
+        image: product.image,
+        images,
+      });
+      return {
+        ...product,
+        images,
+        image: primaryImage,
+      } satisfies Product;
+    });
   }
 
   async listProducts(): Promise<Product[]> {

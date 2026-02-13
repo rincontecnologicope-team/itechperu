@@ -33,3 +33,10 @@
 - Acceso a catalogo y storage via Firebase (`src/lib/catalog-firebase.ts`)
 - Contenido editable de landing (`src/lib/landing-content.ts`, doc `site_content/landing`)
 - Normalizacion de payload admin (`src/lib/product-input.ts`)
+- Modelo de imagenes de producto escalable:
+  - `images: [{ url, order, isPrimary }]`
+  - compatibilidad legacy con `image` como url principal
+  - utilidades en `src/lib/product-images.ts`
+- Capa de storage desacoplada para imagenes de producto:
+  - `src/lib/product-image-storage.ts`
+  - proveedor configurable via `IMAGE_STORAGE_PROVIDER` (`firebase` actual, preparado para `cloudinary`/`supabase`)

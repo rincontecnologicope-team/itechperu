@@ -10,6 +10,7 @@ import {
   removeModelLine,
   splitProductDescriptionLines,
 } from "@/lib/product-description";
+import { getPrimaryImageUrl } from "@/lib/product-images";
 import { formatPen } from "@/lib/format";
 import { calculateSimulatedStock } from "@/lib/stock";
 import { createWhatsAppProductLink } from "@/lib/whatsapp";
@@ -33,6 +34,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
     [product.baseStock, product.id],
   );
   const whatsappLink = createWhatsAppProductLink(product.name, product.price);
+  const primaryImage = getPrimaryImageUrl(product);
   const modelValue = (product.model?.trim() || extractModelFromSummary(product.summary) || "").trim();
   const descriptionPreviewLines = useMemo(() => {
     const rawLines = splitProductDescriptionLines(product.summary);
@@ -55,7 +57,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
         className="relative block aspect-[4/3] overflow-hidden bg-slate-100"
       >
         <Image
-          src={product.image}
+          src={primaryImage}
           alt={product.name}
           fill
           loading="lazy"
