@@ -46,7 +46,9 @@ export function TrustSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
               transition={{ duration: 0.4, delay: index * 0.06 }}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_24px_rgba(15,23,42,0.06)]"
+              whileHover={{ y: -4 }}
+              whileTap={{ y: -1 }}
+              className="premium-highlight rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_24px_rgba(15,23,42,0.06)]"
             >
               <item.icon className="size-5 text-slate-900" />
               <h3 className="mt-4 text-sm font-semibold text-slate-950">{item.title}</h3>

@@ -30,12 +30,13 @@ export function ProductCard({ product, index }: ProductCardProps) {
 
   return (
     <motion.article
-      className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_14px_36px_rgba(15,23,42,0.08)]"
+      className="premium-highlight group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_14px_36px_rgba(15,23,42,0.08)]"
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-20%" }}
       transition={{ duration: 0.45, delay: index * 0.05 }}
       whileHover={{ y: -6 }}
+      whileTap={{ y: -2 }}
     >
       <Link
         href={`/producto/${product.slug}`}

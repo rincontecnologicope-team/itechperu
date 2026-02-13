@@ -10,6 +10,7 @@
   --color-whatsapp: #25d366;
   --color-whatsapp-dark: #1fa855;
   --color-offer: #0ea5e9;
+  --color-premium-gold: #c8a45a;
 }
 
 body {
@@ -30,4 +31,29 @@ h4 {
 
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+.premium-highlight {
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+}
+
+@media (hover: hover) {
+  .premium-highlight:hover {
+    border-color: rgba(200, 164, 90, 0.72);
+    box-shadow:
+      0 18px 38px rgba(15, 23, 42, 0.14),
+      0 0 0 1px rgba(200, 164, 90, 0.68),
+      0 0 0 6px rgba(200, 164, 90, 0.18);
+  }
+}
+
+.premium-highlight:active {
+  border-color: rgba(200, 164, 90, 0.78);
+  box-shadow:
+    0 14px 30px rgba(15, 23, 42, 0.14),
+    0 0 0 1px rgba(200, 164, 90, 0.72),
+    0 0 0 5px rgba(200, 164, 90, 0.22);
 }

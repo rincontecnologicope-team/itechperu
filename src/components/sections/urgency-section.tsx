@@ -37,7 +37,8 @@ export function UrgencySection({ products }: UrgencySectionProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-10%" }}
             transition={{ duration: 0.4 }}
-            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_30px_rgba(15,23,42,0.08)]"
+            whileHover={{ y: -3 }}
+            className="premium-highlight rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_30px_rgba(15,23,42,0.08)]"
           >
             <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
               Recien llegados
@@ -48,7 +49,7 @@ export function UrgencySection({ products }: UrgencySectionProps) {
                 return (
                   <div
                     key={product.id}
-                    className="flex items-center justify-between rounded-2xl border border-slate-200 px-3 py-3"
+                    className="premium-highlight flex items-center justify-between rounded-2xl border border-slate-200 px-3 py-3"
                   >
                     <div>
                       <p className="text-sm font-semibold text-slate-900">{product.name}</p>
@@ -74,7 +75,8 @@ export function UrgencySection({ products }: UrgencySectionProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-10%" }}
             transition={{ duration: 0.4, delay: 0.06 }}
-            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_30px_rgba(15,23,42,0.08)]"
+            whileHover={{ y: -3 }}
+            className="premium-highlight rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_30px_rgba(15,23,42,0.08)]"
           >
             <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
               Mas vendidos
@@ -86,7 +88,7 @@ export function UrgencySection({ products }: UrgencySectionProps) {
                   <Link
                     key={product.id}
                     href={`/producto/${product.slug}`}
-                    className="flex items-center justify-between rounded-2xl border border-slate-200 px-3 py-3 transition hover:border-slate-300 hover:bg-slate-50"
+                    className="premium-highlight flex items-center justify-between rounded-2xl border border-slate-200 px-3 py-3 transition hover:bg-slate-50"
                   >
                     <div>
                       <p className="text-sm font-semibold text-slate-900">{product.name}</p>
