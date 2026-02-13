@@ -3,7 +3,9 @@ import { randomUUID } from "crypto";
 import {
   getFirebaseBucket,
   getFirebaseFirestore,
+  getFirebaseProjectIdValue,
   getFirebaseStorageBucketCandidates,
+  listFirebaseStorageBuckets,
   isFirebaseCatalogConfigured,
 } from "@/lib/firebase-admin";
 import { normalizeProductColors } from "@/lib/product-colors";
@@ -189,7 +191,9 @@ function isBucketNotFoundError(error: unknown): boolean {
 }
 
 export async function uploadFirebaseProductImage(file: File): Promise<string> {
-  const bucketCandidates = getFirebaseStorageBucketCandidates();
+  const initialCandidates = getFirebaseStorageBucketCandidates();
+  const discoveredBuckets = await listFirebaseStorageBuckets();
+  const bucketCandidates = Array.from(new Set([...initialCandidates, ...discoveredBuckets]));
   if (bucketCandidates.length === 0) {
     throw new Error("FIREBASE_STORAGE_BUCKET no configurado.");
   }
@@ -229,7 +233,9 @@ export async function uploadFirebaseProductImage(file: File): Promise<string> {
 
   const suffix =
     lastBucketError instanceof Error ? ` Detalle: ${lastBucketError.message}` : "";
+  const projectId = getFirebaseProjectIdValue();
+  const candidateList = bucketCandidates.join(", ");
   throw new Error(
-    `No se encontro un bucket de Storage valido. Revisa FIREBASE_STORAGE_BUCKET en variables de entorno.${suffix}`,
+    `No se encontro un bucket de Storage valido para el proyecto ${projectId ?? "desconocido"}. Buckets probados: ${candidateList}. Verifica FIREBASE_STORAGE_BUCKET o activa Firebase Storage en consola.${suffix}`,
   );
 }

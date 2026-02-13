@@ -2,7 +2,7 @@
 
 import { GripVertical, ImagePlus, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 
 import {
@@ -31,6 +31,14 @@ function extractImageFiles(fileList: FileList | null): File[] {
   return Array.from(fileList).filter((file) => file.type.startsWith("image/"));
 }
 
+function hasFilePayload(event: DragEvent<HTMLElement> | globalThis.DragEvent): boolean {
+  const types = event.dataTransfer?.types;
+  if (!types) {
+    return false;
+  }
+  return Array.from(types).includes("Files");
+}
+
 export function ProductImagesManager({
   images,
   enabled,
@@ -45,6 +53,22 @@ export function ProductImagesManager({
   const [pendingOrderSave, setPendingOrderSave] = useState(false);
 
   const items = useMemo(() => buildImageItems(images), [images]);
+
+  useEffect(() => {
+    function preventBrowserFileOpen(event: globalThis.DragEvent) {
+      if (!hasFilePayload(event)) {
+        return;
+      }
+      event.preventDefault();
+    }
+
+    window.addEventListener("dragover", preventBrowserFileOpen);
+    window.addEventListener("drop", preventBrowserFileOpen);
+    return () => {
+      window.removeEventListener("dragover", preventBrowserFileOpen);
+      window.removeEventListener("drop", preventBrowserFileOpen);
+    };
+  }, []);
 
   async function uploadFiles(files: File[]) {
     if (!enabled || files.length === 0) {
@@ -117,16 +141,16 @@ export function ProductImagesManager({
         isFileDragOver ? "border-emerald-400 bg-emerald-50/40" : "border-slate-200 bg-slate-50"
       }`}
       onDragOver={(event) => {
-        const droppedFiles = extractImageFiles(event.dataTransfer.files);
-        if (droppedFiles.length > 0) {
+        if (hasFilePayload(event)) {
           event.preventDefault();
+          event.stopPropagation();
           setIsFileDragOver(true);
         }
       }}
       onDragEnter={(event) => {
-        const droppedFiles = extractImageFiles(event.dataTransfer.files);
-        if (droppedFiles.length > 0) {
+        if (hasFilePayload(event)) {
           event.preventDefault();
+          event.stopPropagation();
           setIsFileDragOver(true);
         }
       }}
@@ -137,9 +161,12 @@ export function ProductImagesManager({
         }
       }}
       onDrop={(event) => {
+        if (hasFilePayload(event)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
         const droppedFiles = extractImageFiles(event.dataTransfer.files);
         if (droppedFiles.length > 0) {
-          event.preventDefault();
           void uploadFiles(droppedFiles);
           setIsFileDragOver(false);
         }

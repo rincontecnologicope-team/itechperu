@@ -21,6 +21,10 @@ function getFirebaseProjectId(): string | undefined {
   );
 }
 
+export function getFirebaseProjectIdValue(): string | undefined {
+  return getFirebaseProjectId();
+}
+
 function getFirebaseClientEmail(): string | undefined {
   return process.env.FIREBASE_CLIENT_EMAIL?.trim();
 }
@@ -50,6 +54,45 @@ export function getFirebaseStorageBucketCandidates(): string[] {
   ].filter((item): item is string => Boolean(item));
 
   return Array.from(new Set(candidates));
+}
+
+export async function listFirebaseStorageBuckets(): Promise<string[]> {
+  try {
+    const app = getFirebaseAdminApp();
+    const projectId = getFirebaseProjectId();
+    if (!projectId) {
+      return [];
+    }
+
+    const credential = app.options.credential as
+      | { getAccessToken?: () => Promise<{ access_token?: string }> }
+      | undefined;
+    const token = await credential?.getAccessToken?.();
+    const accessToken = token?.access_token?.trim();
+    if (!accessToken) {
+      return [];
+    }
+
+    const response = await fetch(
+      `https://storage.googleapis.com/storage/v1/b?project=${encodeURIComponent(projectId)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = (await response.json()) as { items?: Array<{ name?: string }> };
+    return (payload.items ?? [])
+      .map((item) => item.name?.trim())
+      .filter((name): name is string => Boolean(name));
+  } catch (error) {
+    console.error("No se pudieron listar buckets de Firebase Storage.", error);
+    return [];
+  }
 }
 
 export function isFirebaseCatalogConfigured(): boolean {
