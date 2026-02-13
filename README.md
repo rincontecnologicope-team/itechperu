@@ -72,7 +72,8 @@ NEXT_PUBLIC_WHATSAPP_PHONE=519XXXXXXXX
 - Login: `/admin/login`
 - Dashboard: `/admin`
 - Requiere `ADMIN_PASSWORD` y `ADMIN_SESSION_SECRET`.
-- Requiere Firebase (Firestore + Storage).
+- Requiere Firebase Firestore.
+- Para imagenes: soporta Firebase Storage o Cloudinary.
 - Permite:
   - CRUD de productos (nombre, precio, stock, descripcion e imagen)
   - Edicion directa de textos de la landing principal (hero, catalogo, confianza, urgencia)
@@ -86,7 +87,10 @@ ADMIN_SESSION_SECRET=define-un-secreto-largo-y-unico
 FIREBASE_PROJECT_ID=itechperu-1d1d4
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxx@itechperu-1d1d4.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-FIREBASE_STORAGE_BUCKET=itechperu-1d1d4.firebasestorage.app
+IMAGE_STORAGE_PROVIDER=cloudinary
+CLOUDINARY_CLOUD_NAME=tu-cloud-name
+CLOUDINARY_UPLOAD_PRESET=tu-upload-preset
+CLOUDINARY_UPLOAD_FOLDER=itechperu/products
 ```
 
 Guia completa en `docs/firebase-setup.md`.
