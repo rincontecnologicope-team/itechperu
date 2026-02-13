@@ -1,18 +1,23 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { Landmark, PackageCheck, Smartphone, Truck } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
+import type { HomeSectionsContent } from "@/types/home-sections";
 
-export function PaymentMethodsSection() {
+interface PaymentMethodsSectionProps {
+  content: HomeSectionsContent;
+}
+
+export function PaymentMethodsSection({ content }: PaymentMethodsSectionProps) {
   return (
     <section className="py-14 sm:py-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <SectionHeading
           eyebrow="Pagos"
-          title="💳 Metodos de Pago Seguros"
-          description="Opciones flexibles para cerrar tu compra rapido y con total tranquilidad."
+          title={content.paymentsTitle}
+          description={content.paymentsSubtitle}
         />
 
         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -25,10 +30,10 @@ export function PaymentMethodsSection() {
           >
             <div className="flex items-center gap-2">
               <Landmark className="size-5 text-slate-900" />
-              <p className="text-sm font-semibold text-slate-950">🏦 Transferencias bancarias</p>
+              <p className="text-sm font-semibold text-slate-950">{content.bankTitle}</p>
             </div>
             <div className="mt-4 grid gap-2">
-              {["BCP", "Interbank", "BBVA"].map((bank) => (
+              {content.banks.map((bank) => (
                 <span
                   key={bank}
                   className="inline-flex w-fit rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700"
@@ -48,10 +53,10 @@ export function PaymentMethodsSection() {
           >
             <div className="flex items-center gap-2">
               <Smartphone className="size-5 text-slate-900" />
-              <p className="text-sm font-semibold text-slate-950">📱 Pagos moviles</p>
+              <p className="text-sm font-semibold text-slate-950">{content.mobileTitle}</p>
             </div>
             <div className="mt-4 grid gap-2">
-              {["YAPE", "PLIN"].map((mobilePay) => (
+              {content.mobileMethods.map((mobilePay) => (
                 <span
                   key={mobilePay}
                   className="inline-flex w-fit rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
@@ -72,13 +77,11 @@ export function PaymentMethodsSection() {
             <div className="grid gap-3">
               <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
                 <Truck className="size-4 text-slate-900" />
-                <p className="text-xs font-semibold text-slate-700">🚚 Contraentrega disponible</p>
+                <p className="text-xs font-semibold text-slate-700">{content.cashOnDeliveryText}</p>
               </div>
               <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
                 <PackageCheck className="size-4 text-slate-900" />
-                <p className="text-xs font-semibold text-slate-700">
-                  📦 Envios a provincia via Shalom
-                </p>
+                <p className="text-xs font-semibold text-slate-700">{content.provinceShippingText}</p>
               </div>
             </div>
           </motion.article>

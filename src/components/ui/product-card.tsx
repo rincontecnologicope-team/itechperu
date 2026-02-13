@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { formatPen } from "@/lib/format";
 import { calculateSimulatedStock } from "@/lib/stock";
 import { createWhatsAppProductLink } from "@/lib/whatsapp";
+import { WhatsAppLink } from "@/components/ui/whatsapp-link";
 import type { Product } from "@/types/product";
 
 interface ProductCardProps {
@@ -94,14 +95,20 @@ export function ProductCard({ product, index }: ProductCardProps) {
           >
             Ver detalle
           </Link>
-          <a
+          <WhatsAppLink
             href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
+            tracking={{
+              source: "product_card_whatsapp",
+              productId: product.id,
+              productName: product.name,
+              price: product.price,
+            }}
             className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-whatsapp)] px-3 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(37,211,102,0.34)] transition hover:bg-[var(--color-whatsapp-dark)]"
           >
             Consultar por WhatsApp
-          </a>
+          </WhatsAppLink>
         </div>
       </div>
     </motion.article>

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+import { WhatsAppLink } from "@/components/ui/whatsapp-link";
 import { createWhatsAppGenericLink } from "@/lib/whatsapp";
 import type { LandingContent } from "@/types/landing-content";
 
@@ -57,14 +58,15 @@ export function HeroSection({ productCount, content }: HeroSectionProps) {
             >
               {content.heroPrimaryCtaLabel}
             </a>
-            <a
+            <WhatsAppLink
               href={createWhatsAppGenericLink(heroMessage)}
               target="_blank"
               rel="noopener noreferrer"
+              tracking={{ source: "hero_secondary_cta" }}
               className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 text-sm font-bold text-slate-900 transition hover:bg-slate-50"
             >
               {content.heroSecondaryCtaLabel}
-            </a>
+            </WhatsAppLink>
           </motion.div>
         </div>
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -6,9 +6,13 @@ import Image from "next/image";
 import { useRef } from "react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
-import { testimonials } from "@/data/testimonials";
+import type { HomeSectionsContent } from "@/types/home-sections";
 
-export function TestimonialsSection() {
+interface TestimonialsSectionProps {
+  content: HomeSectionsContent;
+}
+
+export function TestimonialsSection({ content }: TestimonialsSectionProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   function scroll(direction: "left" | "right") {
@@ -24,8 +28,8 @@ export function TestimonialsSection() {
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <SectionHeading
           eyebrow="Testimonios"
-          title="⭐ Lo que dicen nuestros clientes"
-          description="Opiniones reales de clientes en Peru que compraron con iTech Peru y recibieron equipos verificados."
+          title={content.testimonialsTitle}
+          description={content.testimonialsSubtitle}
         />
 
         <div className="relative mt-8">
@@ -56,7 +60,7 @@ export function TestimonialsSection() {
             transition={{ duration: 0.4 }}
             className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
           >
-            {testimonials.map((item, index) => (
+            {content.testimonials.map((item, index) => (
               <motion.article
                 key={item.id}
                 initial={{ opacity: 0, y: 12 }}
@@ -68,7 +72,10 @@ export function TestimonialsSection() {
                 <div className="flex items-center gap-3">
                   <div className="relative size-12 overflow-hidden rounded-full border border-slate-200">
                     <Image
-                      src={item.avatar}
+                      src={
+                        item.avatar ||
+                        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=320&q=80"
+                      }
                       alt={`Avatar de ${item.name}`}
                       fill
                       loading="lazy"
@@ -78,7 +85,9 @@ export function TestimonialsSection() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-950">{item.name}</p>
-                    <p className="text-xs tracking-wide text-amber-500">⭐⭐⭐⭐⭐</p>
+                    <p className="text-xs tracking-wide text-amber-500">
+                      {"★".repeat(Math.min(5, Math.max(1, Math.round(item.rating || 5))))}
+                    </p>
                   </div>
                 </div>
                 <p className="mt-4 text-sm leading-relaxed text-slate-600">{item.text}</p>

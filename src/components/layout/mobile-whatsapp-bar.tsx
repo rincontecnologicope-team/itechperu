@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 
+import { WhatsAppLink } from "@/components/ui/whatsapp-link";
 import { createWhatsAppGenericLink } from "@/lib/whatsapp";
 
 const mobileMessage =
@@ -15,14 +16,15 @@ export function MobileWhatsAppBar() {
       transition={{ duration: 0.45, delay: 0.6 }}
       className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(15,23,42,0.12)] backdrop-blur md:hidden"
     >
-      <a
+      <WhatsAppLink
         href={createWhatsAppGenericLink(mobileMessage)}
         target="_blank"
         rel="noopener noreferrer"
+        tracking={{ source: "mobile_floating_whatsapp" }}
         className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-[var(--color-whatsapp)] px-4 text-sm font-bold text-white shadow-[0_12px_26px_rgba(37,211,102,0.36)]"
       >
         Contactar por WhatsApp
-      </a>
+      </WhatsAppLink>
     </motion.div>
   );
 }

@@ -1,13 +1,17 @@
-"use client";
+﻿"use client";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
-import { faqs } from "@/data/faqs";
+import type { HomeSectionsContent } from "@/types/home-sections";
 
-export function FaqSection() {
+interface FaqSectionProps {
+  content: HomeSectionsContent;
+}
+
+export function FaqSection({ content }: FaqSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -16,12 +20,12 @@ export function FaqSection() {
         <SectionHeading
           align="center"
           eyebrow="FAQ"
-          title="❓ Preguntas Frecuentes"
-          description="Resolvemos tus dudas antes de comprar"
+          title={content.faqTitle}
+          description={content.faqSubtitle}
         />
 
         <div className="mt-8 grid gap-3">
-          {faqs.map((faq, index) => {
+          {content.faqs.map((faq, index) => {
             const isOpen = activeIndex === index;
             return (
               <article

@@ -3,14 +3,20 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { HomeSectionsEditor } from "@/components/admin/home-sections-editor";
 import { LandingContentEditor } from "@/components/admin/landing-content-editor";
+import { WhatsAppMetricsPanel } from "@/components/admin/whatsapp-metrics-panel";
 import { slugify } from "@/lib/slug";
+import type { HomeSectionsContent } from "@/types/home-sections";
 import type { LandingContent } from "@/types/landing-content";
 import { PRODUCT_CATEGORIES, type Product } from "@/types/product";
+import type { WhatsAppMetrics } from "@/types/whatsapp-analytics";
 
 interface AdminDashboardProps {
   initialProducts: Product[];
   initialLandingContent: LandingContent;
+  initialHomeSectionsContent: HomeSectionsContent;
+  initialWhatsAppMetrics: WhatsAppMetrics;
   catalogConnected: boolean;
 }
 
@@ -105,6 +111,8 @@ function sortProducts(items: Product[]): Product[] {
 export function AdminDashboard({
   initialProducts,
   initialLandingContent,
+  initialHomeSectionsContent,
+  initialWhatsAppMetrics,
   catalogConnected,
 }: AdminDashboardProps) {
   const router = useRouter();
@@ -616,6 +624,8 @@ export function AdminDashboard({
         </div>
 
         <LandingContentEditor initialContent={initialLandingContent} enabled={catalogConnected} />
+        <HomeSectionsEditor initialContent={initialHomeSectionsContent} enabled={catalogConnected} />
+        <WhatsAppMetricsPanel initialMetrics={initialWhatsAppMetrics} enabled={catalogConnected} />
       </section>
     </main>
   );

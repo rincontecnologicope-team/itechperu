@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { WhatsAppLink } from "@/components/ui/whatsapp-link";
 import { createWhatsAppGenericLink } from "@/lib/whatsapp";
 
 const headerMessage = "Hola quiero conocer sus productos disponibles de iTech Peru";
@@ -31,14 +32,15 @@ export function Header() {
           <Link href="#confianza" className={menuItemClasses}>
             Confianza
           </Link>
-          <a
+          <WhatsAppLink
             href={createWhatsAppGenericLink(headerMessage)}
             target="_blank"
             rel="noopener noreferrer"
+            tracking={{ source: "header_nav_whatsapp" }}
             className="premium-highlight inline-flex min-h-10 items-center rounded-xl border border-transparent bg-[var(--color-whatsapp)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-whatsapp-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(200,164,90,0.35)]"
           >
             WhatsApp
-          </a>
+          </WhatsAppLink>
         </nav>
       </div>
     </header>

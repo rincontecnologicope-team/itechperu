@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { WhatsAppLink } from "@/components/ui/whatsapp-link";
 import { siteConfig } from "@/config/site";
 import { formatPen } from "@/lib/format";
 import { getProductBySlug } from "@/lib/catalog";
@@ -118,14 +119,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </ul>
 
             <div className="mt-7 grid gap-3">
-              <a
+              <WhatsAppLink
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                tracking={{
+                  source: "product_detail_whatsapp",
+                  productId: product.id,
+                  productName: product.name,
+                  price: product.price,
+                }}
                 className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[var(--color-whatsapp)] px-6 text-sm font-bold text-white transition hover:bg-[var(--color-whatsapp-dark)]"
               >
                 Consultar por WhatsApp
-              </a>
+              </WhatsAppLink>
               <Link
                 href="/#confianza"
                 className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-6 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
