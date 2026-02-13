@@ -56,17 +56,14 @@ export function ProductImagesManager({
 
   useEffect(() => {
     function preventBrowserFileOpen(event: globalThis.DragEvent) {
-      if (!hasFilePayload(event)) {
-        return;
-      }
       event.preventDefault();
     }
 
-    window.addEventListener("dragover", preventBrowserFileOpen);
-    window.addEventListener("drop", preventBrowserFileOpen);
+    window.addEventListener("dragover", preventBrowserFileOpen, { capture: true });
+    window.addEventListener("drop", preventBrowserFileOpen, { capture: true });
     return () => {
-      window.removeEventListener("dragover", preventBrowserFileOpen);
-      window.removeEventListener("drop", preventBrowserFileOpen);
+      window.removeEventListener("dragover", preventBrowserFileOpen, { capture: true });
+      window.removeEventListener("drop", preventBrowserFileOpen, { capture: true });
     };
   }, []);
 
@@ -141,16 +138,16 @@ export function ProductImagesManager({
         isFileDragOver ? "border-emerald-400 bg-emerald-50/40" : "border-slate-200 bg-slate-50"
       }`}
       onDragOver={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
         if (hasFilePayload(event)) {
-          event.preventDefault();
-          event.stopPropagation();
           setIsFileDragOver(true);
         }
       }}
       onDragEnter={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
         if (hasFilePayload(event)) {
-          event.preventDefault();
-          event.stopPropagation();
           setIsFileDragOver(true);
         }
       }}
@@ -161,15 +158,13 @@ export function ProductImagesManager({
         }
       }}
       onDrop={(event) => {
-        if (hasFilePayload(event)) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
+        event.preventDefault();
+        event.stopPropagation();
         const droppedFiles = extractImageFiles(event.dataTransfer.files);
         if (droppedFiles.length > 0) {
           void uploadFiles(droppedFiles);
-          setIsFileDragOver(false);
         }
+        setIsFileDragOver(false);
       }}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">

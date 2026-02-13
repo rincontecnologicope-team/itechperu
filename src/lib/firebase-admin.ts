@@ -1,3 +1,4 @@
+import { Storage as GoogleCloudStorage } from "@google-cloud/storage";
 import { cert, getApp, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
@@ -44,6 +45,37 @@ function getFirebaseStorageBucket(): string | undefined {
   );
 }
 
+function getFirebaseStorageLocation(): string {
+  return process.env.FIREBASE_STORAGE_LOCATION?.trim() || "us-central1";
+}
+
+let googleStorageClient: GoogleCloudStorage | null = null;
+
+function getGoogleStorageClient(): GoogleCloudStorage {
+  if (googleStorageClient) {
+    return googleStorageClient;
+  }
+
+  const projectId = getFirebaseProjectId();
+  const clientEmail = getFirebaseClientEmail();
+  const privateKey = getFirebasePrivateKey();
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error(
+      "Firebase Storage no configurado. Define FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL y FIREBASE_PRIVATE_KEY.",
+    );
+  }
+
+  googleStorageClient = new GoogleCloudStorage({
+    projectId,
+    credentials: {
+      client_email: clientEmail,
+      private_key: privateKey,
+    },
+  });
+
+  return googleStorageClient;
+}
+
 export function getFirebaseStorageBucketCandidates(): string[] {
   const projectId = getFirebaseProjectId();
   const configured = getFirebaseStorageBucket();
@@ -58,40 +90,52 @@ export function getFirebaseStorageBucketCandidates(): string[] {
 
 export async function listFirebaseStorageBuckets(): Promise<string[]> {
   try {
-    const app = getFirebaseAdminApp();
+    const storage = getGoogleStorageClient();
     const projectId = getFirebaseProjectId();
-    if (!projectId) {
-      return [];
-    }
-
-    const credential = app.options.credential as
-      | { getAccessToken?: () => Promise<{ access_token?: string }> }
-      | undefined;
-    const token = await credential?.getAccessToken?.();
-    const accessToken = token?.access_token?.trim();
-    if (!accessToken) {
-      return [];
-    }
-
-    const response = await fetch(
-      `https://storage.googleapis.com/storage/v1/b?project=${encodeURIComponent(projectId)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
-    if (!response.ok) {
-      return [];
-    }
-
-    const payload = (await response.json()) as { items?: Array<{ name?: string }> };
-    return (payload.items ?? [])
-      .map((item) => item.name?.trim())
+    const [buckets] = await storage.getBuckets(projectId ? { project: projectId } : undefined);
+    return buckets
+      .map((bucket) => bucket.name?.trim())
       .filter((name): name is string => Boolean(name));
   } catch (error) {
     console.error("No se pudieron listar buckets de Firebase Storage.", error);
     return [];
+  }
+}
+
+export async function ensureFirebaseStorageBucket(bucketName: string): Promise<boolean> {
+  const normalizedBucket = normalizeBucketName(bucketName);
+  const projectId = getFirebaseProjectId();
+  if (!normalizedBucket || !projectId) {
+    return false;
+  }
+
+  try {
+    const storage = getGoogleStorageClient();
+    await storage.createBucket(normalizedBucket, {
+      project: projectId,
+      location: getFirebaseStorageLocation(),
+      storageClass: "STANDARD",
+      iamConfiguration: {
+        uniformBucketLevelAccess: {
+          enabled: true,
+        },
+      },
+    });
+    return true;
+  } catch (error) {
+    const code =
+      typeof error === "object" && error && "code" in error ? String(error.code) : "unknown";
+    if (code === "409" || /already exists/i.test(String((error as Error)?.message ?? ""))) {
+      return true;
+    }
+    const message = String((error as Error)?.message ?? "Error desconocido");
+    if (code === "403") {
+      throw new Error(
+        `No hay permisos para crear el bucket ${normalizedBucket}. Firebase/Google Cloud respondio 403: ${message}.`,
+      );
+    }
+    console.error(`No se pudo crear bucket ${normalizedBucket}.`, error);
+    return false;
   }
 }
 

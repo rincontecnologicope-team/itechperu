@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 
 import {
+  ensureFirebaseStorageBucket,
   getFirebaseBucket,
   getFirebaseFirestore,
   getFirebaseProjectIdValue,
@@ -190,6 +191,31 @@ function isBucketNotFoundError(error: unknown): boolean {
   );
 }
 
+async function uploadBufferToBucket(
+  bucketName: string,
+  path: string,
+  buffer: Buffer,
+  contentType: string,
+): Promise<string> {
+  const bucket = getFirebaseBucket(bucketName);
+  const token = randomUUID();
+  const object = bucket.file(path);
+
+  await object.save(buffer, {
+    metadata: {
+      contentType,
+      metadata: {
+        firebaseStorageDownloadTokens: token,
+      },
+      cacheControl: "public,max-age=3600",
+    },
+    public: false,
+    validation: "crc32c",
+  });
+
+  return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+}
+
 export async function uploadFirebaseProductImage(file: File): Promise<string> {
   const initialCandidates = getFirebaseStorageBucketCandidates();
   const discoveredBuckets = await listFirebaseStorageBuckets();
@@ -201,27 +227,12 @@ export async function uploadFirebaseProductImage(file: File): Promise<string> {
   const cleanName = file.name.replace(/\s+/g, "-").toLowerCase();
   const path = `products/${Date.now()}-${Math.random().toString(16).slice(2)}-${cleanName}`;
   const buffer = Buffer.from(await file.arrayBuffer());
+  const contentType = file.type || "application/octet-stream";
   let lastBucketError: unknown;
 
   for (const candidate of bucketCandidates) {
-    const bucket = getFirebaseBucket(candidate);
-    const token = randomUUID();
-    const object = bucket.file(path);
-
     try {
-      await object.save(buffer, {
-        metadata: {
-          contentType: file.type || "application/octet-stream",
-          metadata: {
-            firebaseStorageDownloadTokens: token,
-          },
-          cacheControl: "public,max-age=3600",
-        },
-        public: false,
-        validation: "crc32c",
-      });
-
-      return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+      return await uploadBufferToBucket(candidate, path, buffer, contentType);
     } catch (error) {
       lastBucketError = error;
       if (isBucketNotFoundError(error)) {
@@ -231,11 +242,42 @@ export async function uploadFirebaseProductImage(file: File): Promise<string> {
     }
   }
 
+  // Intento de auto-provision de bucket default si no existe.
+  const projectId = getFirebaseProjectIdValue();
+  const provisionCandidates = Array.from(
+    new Set([
+      ...bucketCandidates,
+      projectId ? `${projectId}.appspot.com` : undefined,
+      projectId ? `${projectId}.firebasestorage.app` : undefined,
+    ].filter((item): item is string => Boolean(item))),
+  );
+  const provisionErrors: string[] = [];
+
+  for (const candidate of provisionCandidates) {
+    let created = false;
+    try {
+      created = await ensureFirebaseStorageBucket(candidate);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "Error desconocido";
+      provisionErrors.push(`${candidate}: ${detail}`);
+      continue;
+    }
+    if (!created) {
+      continue;
+    }
+    try {
+      return await uploadBufferToBucket(candidate, path, buffer, contentType);
+    } catch (error) {
+      lastBucketError = error;
+    }
+  }
+
   const suffix =
     lastBucketError instanceof Error ? ` Detalle: ${lastBucketError.message}` : "";
-  const projectId = getFirebaseProjectIdValue();
-  const candidateList = bucketCandidates.join(", ");
+  const provisionSuffix =
+    provisionErrors.length > 0 ? ` Errores al crear bucket: ${provisionErrors.join(" | ")}` : "";
+  const candidateList = provisionCandidates.join(", ");
   throw new Error(
-    `No se encontro un bucket de Storage valido para el proyecto ${projectId ?? "desconocido"}. Buckets probados: ${candidateList}. Verifica FIREBASE_STORAGE_BUCKET o activa Firebase Storage en consola.${suffix}`,
+    `No se encontro ni se pudo crear un bucket de Storage valido para el proyecto ${projectId ?? "desconocido"}. Buckets probados: ${candidateList}. Activa Firebase Storage en consola y vuelve a intentar.${suffix}${provisionSuffix}`,
   );
 }
