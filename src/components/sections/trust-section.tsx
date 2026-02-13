@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { BadgeCheck, Box, ShieldCheck, Truck } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
+import type { LandingContent } from "@/types/landing-content";
 
 const trustItems = [
   {
@@ -28,14 +29,18 @@ const trustItems = [
   },
 ];
 
-export function TrustSection() {
+interface TrustSectionProps {
+  content: LandingContent;
+}
+
+export function TrustSection({ content }: TrustSectionProps) {
   return (
     <section id="confianza" className="scroll-mt-24 bg-slate-50 py-14 sm:py-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Confianza"
-          title="Compras con respaldo real"
-          description="Diseno limpio y transparente para reducir dudas en segundos y acelerar la decision de compra desde movil."
+          eyebrow={content.trustEyebrow}
+          title={content.trustTitle}
+          description={content.trustDescription}
         />
 
         <div className="mt-8 grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">

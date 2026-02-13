@@ -3,11 +3,14 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { LandingContentEditor } from "@/components/admin/landing-content-editor";
 import { slugify } from "@/lib/slug";
+import type { LandingContent } from "@/types/landing-content";
 import { PRODUCT_CATEGORIES, type Product } from "@/types/product";
 
 interface AdminDashboardProps {
   initialProducts: Product[];
+  initialLandingContent: LandingContent;
   catalogConnected: boolean;
 }
 
@@ -99,7 +102,11 @@ function sortProducts(items: Product[]): Product[] {
   });
 }
 
-export function AdminDashboard({ initialProducts, catalogConnected }: AdminDashboardProps) {
+export function AdminDashboard({
+  initialProducts,
+  initialLandingContent,
+  catalogConnected,
+}: AdminDashboardProps) {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>(sortProducts(initialProducts));
   const [selectedId, setSelectedId] = useState<string | null>(initialProducts[0]?.id ?? null);
@@ -607,6 +614,8 @@ export function AdminDashboard({ initialProducts, catalogConnected }: AdminDashb
             </div>
           </section>
         </div>
+
+        <LandingContentEditor initialContent={initialLandingContent} enabled={catalogConnected} />
       </section>
     </main>
   );

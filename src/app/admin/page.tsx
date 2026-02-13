@@ -5,6 +5,8 @@ import { AdminDashboard } from "@/components/admin/admin-dashboard";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getAdminProducts } from "@/lib/catalog";
 import { isFirebaseCatalogConfigured } from "@/lib/catalog-firebase";
+import { DEFAULT_LANDING_CONTENT, getAdminLandingContent } from "@/lib/landing-content";
+import type { LandingContent } from "@/types/landing-content";
 import type { Product } from "@/types/product";
 
 export const dynamic = "force-dynamic";
@@ -24,14 +26,24 @@ export default async function AdminPage() {
 
   const catalogConnected = isFirebaseCatalogConfigured();
   let products: Product[] = [];
+  let landingContent: LandingContent = { ...DEFAULT_LANDING_CONTENT };
 
   if (catalogConnected) {
     try {
-      products = await getAdminProducts();
+      [products, landingContent] = await Promise.all([
+        getAdminProducts(),
+        getAdminLandingContent(),
+      ]);
     } catch (error) {
-      console.error("No se pudieron cargar productos para admin:", error);
+      console.error("No se pudieron cargar datos para admin:", error);
     }
   }
 
-  return <AdminDashboard initialProducts={products} catalogConnected={catalogConnected} />;
+  return (
+    <AdminDashboard
+      initialProducts={products}
+      initialLandingContent={landingContent}
+      catalogConnected={catalogConnected}
+    />
+  );
 }

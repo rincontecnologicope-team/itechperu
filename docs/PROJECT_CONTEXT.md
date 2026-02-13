@@ -17,6 +17,7 @@
 - `POST /api/admin/logout`
 - `GET|PUT|DELETE /api/admin/products`
 - `POST /api/admin/upload`
+- `GET|PUT /api/admin/landing`
 
 ## Seguridad
 
@@ -26,4 +27,5 @@
 ## Datos
 
 - Acceso a catalogo y storage via Firebase (`src/lib/catalog-firebase.ts`)
+- Contenido editable de landing (`src/lib/landing-content.ts`, doc `site_content/landing`)
 - Normalizacion de payload admin (`src/lib/product-input.ts`)

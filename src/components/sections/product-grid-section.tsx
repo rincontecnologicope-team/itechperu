@@ -4,22 +4,24 @@ import { motion } from "framer-motion";
 
 import { ProductCard } from "@/components/ui/product-card";
 import { SectionHeading } from "@/components/ui/section-heading";
+import type { LandingContent } from "@/types/landing-content";
 import type { Product } from "@/types/product";
 
 interface ProductGridSectionProps {
   products: Product[];
+  content: LandingContent;
 }
 
-export function ProductGridSection({ products }: ProductGridSectionProps) {
+export function ProductGridSection({ products, content }: ProductGridSectionProps) {
   const categories = Array.from(new Set(products.map((product) => product.category)));
 
   return (
     <section id="catalogo" className="scroll-mt-24 py-14 sm:py-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Catalogo"
-          title="Productos listos para entrega inmediata"
-          description="Seleccion curada para usuarios que ya llegan con intencion de compra. Cada equipo incluye estado real, precio transparente y boton directo a WhatsApp."
+          eyebrow={content.catalogEyebrow}
+          title={content.catalogTitle}
+          description={content.catalogDescription}
         />
 
         <div className="mt-6 flex flex-wrap gap-2">

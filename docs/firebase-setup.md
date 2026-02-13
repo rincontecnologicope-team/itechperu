@@ -68,4 +68,31 @@ Documento por producto (ID igual a `id` del producto), campos:
 1. Abre `/admin/login`
 2. Ingresa `ADMIN_PASSWORD`
 3. En `/admin` crea/edita/elimina productos
-4. Sube fotos desde el panel (Storage)
+4. Edita textos de la landing (hero, catalogo, confianza, urgencia)
+5. Sube fotos desde el panel (Storage), incluyendo imagen principal del hero
+
+## 6) Contenido de landing (Firestore)
+
+Coleccion: `site_content`  
+Documento: `landing`
+
+Campos esperados (string):
+
+- `heroEyebrow`
+- `heroTitle`
+- `heroDescription` (usa `{count}` para mostrar cantidad de productos)
+- `heroPrimaryCtaLabel`
+- `heroSecondaryCtaLabel`
+- `heroCardEyebrow`
+- `heroCardTitle`
+- `heroImageUrl`
+- `heroImageAlt`
+- `catalogEyebrow`
+- `catalogTitle`
+- `catalogDescription`
+- `trustEyebrow`
+- `trustTitle`
+- `trustDescription`
+- `urgencyEyebrow`
+- `urgencyTitle`
+- `urgencyDescription`

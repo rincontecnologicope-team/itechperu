@@ -73,6 +73,10 @@ NEXT_PUBLIC_WHATSAPP_PHONE=519XXXXXXXX
 - Dashboard: `/admin`
 - Requiere `ADMIN_PASSWORD` y `ADMIN_SESSION_SECRET`.
 - Requiere Firebase (Firestore + Storage).
+- Permite:
+  - CRUD de productos (nombre, precio, stock, descripcion e imagen)
+  - Edicion directa de textos de la landing principal (hero, catalogo, confianza, urgencia)
+  - Subida de imagen del hero para la home
 
 Variables requeridas:
 

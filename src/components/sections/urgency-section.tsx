@@ -6,13 +6,15 @@ import { useMemo } from "react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
 import { calculateSimulatedStock } from "@/lib/stock";
+import type { LandingContent } from "@/types/landing-content";
 import type { Product } from "@/types/product";
 
 interface UrgencySectionProps {
   products: Product[];
+  content: LandingContent;
 }
 
-export function UrgencySection({ products }: UrgencySectionProps) {
+export function UrgencySection({ products, content }: UrgencySectionProps) {
   const newArrivals = useMemo(
     () => products.filter((product) => product.isNewArrival).slice(0, 4),
     [products],
@@ -26,9 +28,9 @@ export function UrgencySection({ products }: UrgencySectionProps) {
     <section className="py-14 sm:py-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Urgencia"
-          title="Se agotan rapido"
-          description="Stock actualizado de forma dinamica para reflejar la disponibilidad del dia y activar accion inmediata."
+          eyebrow={content.urgencyEyebrow}
+          title={content.urgencyTitle}
+          description={content.urgencyDescription}
         />
 
         <div className="mt-7 grid gap-4 md:grid-cols-2">
