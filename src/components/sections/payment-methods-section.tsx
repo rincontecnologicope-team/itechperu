@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Building2, Landmark, PackageCheck, Smartphone, Truck, Wallet } from "lucide-react";
+import Image from "next/image";
 
 import { SectionHeading } from "@/components/ui/section-heading";
 import type { HomeSectionsContent } from "@/types/home-sections";
@@ -15,6 +16,9 @@ interface BrandVisual {
   accentBarClass: string;
   chipClass: string;
   textClass: string;
+  logoSrc?: string;
+  logoAlt?: string;
+  logoBgClass?: string;
 }
 
 const BANK_BRANDS: Record<string, BrandVisual> = {
@@ -23,18 +27,27 @@ const BANK_BRANDS: Record<string, BrandVisual> = {
     accentBarClass: "from-blue-600 to-blue-400",
     chipClass: "border-blue-200 bg-blue-50",
     textClass: "text-blue-700",
+    logoSrc: "/brands/bcp.svg",
+    logoAlt: "Logo BCP",
+    logoBgClass: "bg-white",
   },
   interbank: {
     short: "IBK",
     accentBarClass: "from-emerald-500 to-emerald-300",
     chipClass: "border-emerald-200 bg-emerald-50",
     textClass: "text-emerald-700",
+    logoSrc: "/brands/interbank.svg",
+    logoAlt: "Logo Interbank",
+    logoBgClass: "bg-white",
   },
   bbva: {
     short: "BBVA",
     accentBarClass: "from-sky-600 to-cyan-400",
     chipClass: "border-sky-200 bg-sky-50",
     textClass: "text-sky-700",
+    logoSrc: "/brands/bbva.svg",
+    logoAlt: "Logo BBVA",
+    logoBgClass: "bg-[#061a6b]",
   },
 };
 
@@ -120,11 +133,26 @@ export function PaymentMethodsSection({ content }: PaymentMethodsSectionProps) {
                   >
                     <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${visual.accentBarClass}`} />
                     <div className="flex items-center gap-2.5">
-                      <span
-                        className={`inline-flex min-w-11 items-center justify-center rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${visual.chipClass} ${visual.textClass}`}
-                      >
-                        {visual.short}
-                      </span>
+                      {visual.logoSrc ? (
+                        <span
+                          className={`inline-flex h-9 w-16 items-center justify-center overflow-hidden rounded-xl border border-slate-200 shadow-[0_4px_10px_rgba(15,23,42,0.12)] ${visual.logoBgClass ?? "bg-white"}`}
+                        >
+                          <Image
+                            src={visual.logoSrc}
+                            alt={visual.logoAlt ?? `Logo ${bank}`}
+                            width={60}
+                            height={24}
+                            loading="lazy"
+                            className="h-auto max-h-5 w-auto max-w-[52px] object-contain"
+                          />
+                        </span>
+                      ) : (
+                        <span
+                          className={`inline-flex min-w-11 items-center justify-center rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${visual.chipClass} ${visual.textClass}`}
+                        >
+                          {visual.short}
+                        </span>
+                      )}
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-slate-900">{bank}</p>
                         <p className="text-[11px] text-slate-500">Transferencia verificada</p>
