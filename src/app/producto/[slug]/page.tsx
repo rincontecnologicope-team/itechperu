@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { siteConfig } from "@/config/site";
 import { formatPen } from "@/lib/format";
-import { getCatalogProducts, getProductBySlug } from "@/lib/catalog";
+import { getProductBySlug } from "@/lib/catalog";
 import { calculateSimulatedStock } from "@/lib/stock";
 import { createWhatsAppProductLink } from "@/lib/whatsapp";
 
@@ -15,10 +15,7 @@ interface ProductPageProps {
   };
 }
 
-export async function generateStaticParams() {
-  const products = await getCatalogProducts();
-  return products.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -115,7 +112,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <ul className="mt-6 grid gap-2">
               {product.highlights.map((highlight) => (
                 <li key={highlight} className="text-sm text-slate-700">
-                  • {highlight}
+                  - {highlight}
                 </li>
               ))}
             </ul>
@@ -142,3 +139,4 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </main>
   );
 }
+

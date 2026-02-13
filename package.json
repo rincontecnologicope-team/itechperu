@@ -10,6 +10,7 @@
     "wait-deploy": "powershell -ExecutionPolicy Bypass -File ./scripts/wait-deploy.ps1"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.95.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.0",
     "lucide-react": "^0.564.0",

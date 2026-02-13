@@ -26,6 +26,8 @@ npm run wait-deploy
 ```text
 src/
   app/
+    admin/
+    api/admin/
     page.tsx
     producto/[slug]/page.tsx
     layout.tsx
@@ -42,13 +44,16 @@ src/
 public/
   products/
   og/
+docs/
+  supabase-setup.md
 ```
 
 ## Datos y escalabilidad
 
-- Catalogo actual en `src/data/products.json`.
-- Capa de acceso en `src/lib/catalog-repository.ts`.
-- Preparado para reemplazar JSON por DB sin tocar componentes UI.
+- Lectura publica del catalogo:
+  - si hay Supabase configurado, usa DB remota.
+  - si no hay Supabase, usa fallback local `src/data/products.json`.
+- Panel admin (`/admin`) usa Supabase para guardar cambios en caliente.
 
 ## WhatsApp dinamico por producto
 
@@ -61,3 +66,22 @@ Configura el numero real con:
 ```bash
 NEXT_PUBLIC_WHATSAPP_PHONE=519XXXXXXXX
 ```
+
+## Panel Admin
+
+- Login: `/admin/login`
+- Dashboard: `/admin`
+- Requiere `ADMIN_PASSWORD` y `ADMIN_SESSION_SECRET`.
+- Requiere Supabase (tabla `products` + storage bucket).
+
+Variables requeridas:
+
+```bash
+ADMIN_PASSWORD=define-una-contrasena-fuerte
+ADMIN_SESSION_SECRET=define-un-secreto-largo-y-unico
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=tu-service-role-key
+SUPABASE_BUCKET=product-images
+```
+
+Guia SQL completa en `docs/supabase-setup.md`.

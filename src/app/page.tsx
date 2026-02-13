@@ -7,6 +7,8 @@ import { TrustSection } from "@/components/sections/trust-section";
 import { UrgencySection } from "@/components/sections/urgency-section";
 import { getCatalogProducts, getFeaturedProducts } from "@/lib/catalog";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [products, featuredProducts] = await Promise.all([
     getCatalogProducts(),
