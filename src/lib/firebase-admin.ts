@@ -3,11 +3,14 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 
 function getFirebaseProjectId(): string | undefined {
-  return process.env.FIREBASE_PROJECT_ID ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  return (
+    process.env.FIREBASE_PROJECT_ID?.trim() ??
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim()
+  );
 }
 
 function getFirebaseClientEmail(): string | undefined {
-  return process.env.FIREBASE_CLIENT_EMAIL;
+  return process.env.FIREBASE_CLIENT_EMAIL?.trim();
 }
 
 function getFirebasePrivateKey(): string | undefined {
@@ -15,11 +18,14 @@ function getFirebasePrivateKey(): string | undefined {
   if (!raw) {
     return undefined;
   }
-  return raw.replace(/\\n/g, "\n");
+  return raw.trim().replace(/\\n/g, "\n");
 }
 
 function getFirebaseStorageBucket(): string | undefined {
-  return process.env.FIREBASE_STORAGE_BUCKET ?? process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+  return (
+    process.env.FIREBASE_STORAGE_BUCKET?.trim() ??
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET?.trim()
+  );
 }
 
 export function isFirebaseCatalogConfigured(): boolean {

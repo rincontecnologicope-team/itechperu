@@ -6,11 +6,9 @@ const ADMIN_COOKIE_NAME = "itech_admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 
 function getSessionSecret(): string {
-  return (
-    process.env.ADMIN_SESSION_SECRET ??
-    process.env.ADMIN_PASSWORD ??
-    "change-this-admin-secret"
-  );
+  const sessionSecret = process.env.ADMIN_SESSION_SECRET?.trim();
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+  return sessionSecret ?? adminPassword ?? "change-this-admin-secret";
 }
 
 function sign(payload: string): string {
@@ -27,11 +25,11 @@ function safeCompare(a: string, b: string): boolean {
 }
 
 export function isAdminPasswordConfigured(): boolean {
-  return Boolean(process.env.ADMIN_PASSWORD);
+  return Boolean(process.env.ADMIN_PASSWORD?.trim());
 }
 
 export function validateAdminPassword(password: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD ?? "";
+  const expected = process.env.ADMIN_PASSWORD?.trim() ?? "";
   if (!expected) {
     return false;
   }
