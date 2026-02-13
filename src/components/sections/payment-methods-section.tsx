@@ -19,6 +19,8 @@ interface BrandVisual {
   logoSrc?: string;
   logoAlt?: string;
   logoBgClass?: string;
+  logoFrameClass?: string;
+  logoImageClass?: string;
 }
 
 const BANK_BRANDS: Record<string, BrandVisual> = {
@@ -45,9 +47,10 @@ const BANK_BRANDS: Record<string, BrandVisual> = {
     accentBarClass: "from-sky-600 to-cyan-400",
     chipClass: "border-sky-200 bg-sky-50",
     textClass: "text-sky-700",
-    logoSrc: "/brands/bbva.svg",
-    logoAlt: "Logo BBVA",
+    logoSrc: "/brands/bbva-white.png",
+    logoAlt: "Logo oficial BBVA",
     logoBgClass: "bg-[#061a6b]",
+    logoImageClass: "h-auto max-h-[18px] w-auto max-w-[52px] object-contain",
   },
 };
 
@@ -57,12 +60,21 @@ const MOBILE_BRANDS: Record<string, BrandVisual> = {
     accentBarClass: "from-purple-600 to-fuchsia-400",
     chipClass: "border-purple-200 bg-purple-50",
     textClass: "text-purple-700",
+    logoSrc: "/brands/yape-official.png",
+    logoAlt: "Logo oficial Yape",
+    logoBgClass: "bg-[#6A1189]",
+    logoFrameClass: "h-9 w-9 rounded-xl",
+    logoImageClass: "h-6 w-6 object-contain",
   },
   plin: {
     short: "P",
     accentBarClass: "from-emerald-600 to-teal-400",
     chipClass: "border-emerald-200 bg-emerald-50",
     textClass: "text-emerald-700",
+    logoSrc: "/brands/plin-official.png",
+    logoAlt: "Logo oficial Plin",
+    logoFrameClass: "h-9 w-9 rounded-xl",
+    logoImageClass: "h-7 w-7 object-contain",
   },
 };
 
@@ -135,7 +147,7 @@ export function PaymentMethodsSection({ content }: PaymentMethodsSectionProps) {
                     <div className="flex items-center gap-2.5">
                       {visual.logoSrc ? (
                         <span
-                          className={`inline-flex h-9 w-16 items-center justify-center overflow-hidden rounded-xl border border-slate-200 shadow-[0_4px_10px_rgba(15,23,42,0.12)] ${visual.logoBgClass ?? "bg-white"}`}
+                          className={`inline-flex items-center justify-center overflow-hidden border border-slate-200 shadow-[0_4px_10px_rgba(15,23,42,0.12)] ${visual.logoFrameClass ?? "h-9 w-16 rounded-xl"} ${visual.logoBgClass ?? "bg-white"}`}
                         >
                           <Image
                             src={visual.logoSrc}
@@ -143,7 +155,7 @@ export function PaymentMethodsSection({ content }: PaymentMethodsSectionProps) {
                             width={60}
                             height={24}
                             loading="lazy"
-                            className="h-auto max-h-5 w-auto max-w-[52px] object-contain"
+                            className={visual.logoImageClass ?? "h-auto max-h-5 w-auto max-w-[52px] object-contain"}
                           />
                         </span>
                       ) : (
@@ -189,11 +201,26 @@ export function PaymentMethodsSection({ content }: PaymentMethodsSectionProps) {
                   >
                     <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${visual.accentBarClass}`} />
                     <div className="flex items-center gap-2.5">
-                      <span
-                        className={`inline-flex size-8 items-center justify-center rounded-full border ${visual.chipClass}`}
-                      >
-                        <Wallet className={`size-4 ${visual.textClass}`} />
-                      </span>
+                      {visual.logoSrc ? (
+                        <span
+                          className={`inline-flex items-center justify-center overflow-hidden border border-slate-200 shadow-[0_4px_10px_rgba(15,23,42,0.12)] ${visual.logoFrameClass ?? "h-9 w-16 rounded-xl"} ${visual.logoBgClass ?? "bg-white"}`}
+                        >
+                          <Image
+                            src={visual.logoSrc}
+                            alt={visual.logoAlt ?? `Logo ${mobilePay}`}
+                            width={44}
+                            height={44}
+                            loading="lazy"
+                            className={visual.logoImageClass ?? "h-auto max-h-5 w-auto max-w-[52px] object-contain"}
+                          />
+                        </span>
+                      ) : (
+                        <span
+                          className={`inline-flex size-8 items-center justify-center rounded-full border ${visual.chipClass}`}
+                        >
+                          <Wallet className={`size-4 ${visual.textClass}`} />
+                        </span>
+                      )}
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-slate-900">{mobilePay}</p>
                         <p className="text-[11px] text-slate-500">Confirmacion al instante</p>
