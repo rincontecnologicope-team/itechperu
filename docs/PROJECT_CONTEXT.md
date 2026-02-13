@@ -4,6 +4,10 @@
 
 - Home y detalle de producto en App Router (`src/app/page.tsx`, `src/app/producto/[slug]/page.tsx`).
 - Catalogo consume Firebase cuando hay variables de entorno; si no, usa fallback JSON local.
+- Secciones adicionales de conversion en home:
+  - Testimonios con slider y scroll snap
+  - Metodos de pago
+  - FAQ con acordeon
 
 ## Panel admin
 
