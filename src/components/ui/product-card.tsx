@@ -6,10 +6,15 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import {
+  extractColorsFromSummary,
   extractModelFromSummary,
+  extractStorageFromSummary,
+  removeColorsLine,
   removeModelLine,
+  removeStorageLine,
   splitProductDescriptionLines,
 } from "@/lib/product-description";
+import { normalizeProductColors } from "@/lib/product-colors";
 import { getPrimaryImageUrl } from "@/lib/product-images";
 import { formatPen } from "@/lib/format";
 import { calculateSimulatedStock } from "@/lib/stock";
@@ -36,11 +41,19 @@ export function ProductCard({ product, index }: ProductCardProps) {
   const whatsappLink = createWhatsAppProductLink(product.name, product.price);
   const primaryImage = getPrimaryImageUrl(product);
   const modelValue = (product.model?.trim() || extractModelFromSummary(product.summary) || "").trim();
+  const storageValue =
+    (product.storage?.trim() || extractStorageFromSummary(product.summary) || "").trim();
+  const colorsValue =
+    product.colors.length > 0
+      ? normalizeProductColors(product.colors)
+      : normalizeProductColors(extractColorsFromSummary(product.summary));
   const descriptionPreviewLines = useMemo(() => {
     const rawLines = splitProductDescriptionLines(product.summary);
-    const cleanLines = modelValue ? removeModelLine(rawLines) : rawLines;
+    const withoutModel = modelValue ? removeModelLine(rawLines) : rawLines;
+    const withoutStorage = storageValue ? removeStorageLine(withoutModel) : withoutModel;
+    const cleanLines = colorsValue.length > 0 ? removeColorsLine(withoutStorage) : withoutStorage;
     return cleanLines.slice(0, 4);
-  }, [modelValue, product.summary]);
+  }, [colorsValue.length, modelValue, product.summary, storageValue]);
 
   return (
     <motion.article
@@ -86,6 +99,26 @@ export function ProductCard({ product, index }: ProductCardProps) {
           <p className="mt-2 text-xs font-medium text-slate-700">
             <span className="text-slate-500">Modelo:</span> {modelValue}
           </p>
+        ) : null}
+
+        {storageValue ? (
+          <p className="mt-1 text-xs font-medium text-slate-700">
+            <span className="text-slate-500">Almacenamiento:</span> {storageValue}
+          </p>
+        ) : null}
+
+        {colorsValue.length > 0 ? (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-semibold text-slate-500">Colores:</span>
+            {colorsValue.slice(0, 5).map((color, index) => (
+              <span
+                key={`${color.hex}-${index}`}
+                className="inline-flex size-4 rounded-full border border-slate-300"
+                title={color.name || color.hex}
+                style={{ backgroundColor: color.hex }}
+              />
+            ))}
+          </div>
         ) : null}
 
         <ul className="mt-2 grid gap-1 text-xs leading-relaxed text-slate-600">

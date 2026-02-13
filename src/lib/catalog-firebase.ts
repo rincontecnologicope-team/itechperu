@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 
 import { getFirebaseBucket, getFirebaseFirestore, isFirebaseCatalogConfigured } from "@/lib/firebase-admin";
+import { normalizeProductColors } from "@/lib/product-colors";
 import { getPrimaryImageUrl, normalizeProductImages } from "@/lib/product-images";
 import type { Product, ProductBadgeType, ProductCategory } from "@/types/product";
 
@@ -16,6 +17,8 @@ interface ProductDoc {
   name: string;
   category: string;
   model?: string | null;
+  storage?: string | null;
+  colors?: Array<{ name?: string; hex?: string; order?: number }> | null;
   images?: ProductImageDoc[] | null;
   summary: string;
   highlights: string[] | null;
@@ -62,6 +65,9 @@ function mapDocToProduct(data: ProductDoc): Product {
     name: data.name,
     category: normalizeCategory(data.category),
     model: typeof data.model === "string" && data.model.trim() ? data.model.trim() : undefined,
+    storage:
+      typeof data.storage === "string" && data.storage.trim() ? data.storage.trim() : undefined,
+    colors: normalizeProductColors(data.colors),
     images,
     summary: data.summary,
     highlights: data.highlights ?? [],
@@ -92,6 +98,12 @@ function mapProductToDoc(product: Product): ProductDoc {
     name: product.name,
     category: product.category,
     model: product.model ?? null,
+    storage: product.storage ?? null,
+    colors: normalizeProductColors(product.colors).map((color) => ({
+      name: color.name,
+      hex: color.hex,
+      order: color.order,
+    })),
     images: images.map((image) => ({
       url: image.url,
       order: image.order,

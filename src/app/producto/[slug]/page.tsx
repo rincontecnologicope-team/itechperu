@@ -7,10 +7,15 @@ import { WhatsAppLink } from "@/components/ui/whatsapp-link";
 import { siteConfig } from "@/config/site";
 import { formatPen } from "@/lib/format";
 import {
+  extractColorsFromSummary,
   extractModelFromSummary,
+  extractStorageFromSummary,
+  removeColorsLine,
   removeModelLine,
+  removeStorageLine,
   splitProductDescriptionLines,
 } from "@/lib/product-description";
+import { normalizeProductColors } from "@/lib/product-colors";
 import { getPrimaryImageUrl } from "@/lib/product-images";
 import { getProductBySlug } from "@/lib/catalog";
 import { calculateSimulatedStock } from "@/lib/stock";
@@ -69,7 +74,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const whatsappLink = createWhatsAppProductLink(product.name, product.price);
   const primaryImage = getPrimaryImageUrl(product);
   const modelValue = (product.model?.trim() || extractModelFromSummary(product.summary) || "").trim();
-  const descriptionLines = removeModelLine(splitProductDescriptionLines(product.summary));
+  const storageValue =
+    (product.storage?.trim() || extractStorageFromSummary(product.summary) || "").trim();
+  const colorsValue =
+    product.colors.length > 0
+      ? normalizeProductColors(product.colors)
+      : normalizeProductColors(extractColorsFromSummary(product.summary));
+  const withoutModel = modelValue
+    ? removeModelLine(splitProductDescriptionLines(product.summary))
+    : splitProductDescriptionLines(product.summary);
+  const withoutStorage = storageValue ? removeStorageLine(withoutModel) : withoutModel;
+  const descriptionLines = colorsValue.length > 0 ? removeColorsLine(withoutStorage) : withoutStorage;
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]">
@@ -101,13 +116,46 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.name}
             </h1>
 
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Modelo
-              </p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">
-                {modelValue || "Por confirmar con asesor"}
-              </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Modelo
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">
+                  {modelValue || "Por confirmar"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Almacenamiento
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">
+                  {storageValue || "Por confirmar"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Colores
+                </p>
+                {colorsValue.length > 0 ? (
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    {colorsValue.map((color, index) => (
+                      <span
+                        key={`${color.hex}-${index}`}
+                        className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2 py-1 text-[11px] font-medium text-slate-700"
+                      >
+                        <span
+                          className="inline-flex size-3 rounded-full border border-slate-300"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        {color.name || color.hex}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-1 text-sm font-semibold text-slate-900">Por confirmar</p>
+                )}
+              </div>
             </div>
 
             {descriptionLines.length > 0 ? (

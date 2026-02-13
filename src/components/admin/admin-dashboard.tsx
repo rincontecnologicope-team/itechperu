@@ -5,13 +5,20 @@ import { useRouter } from "next/navigation";
 
 import { HomeSectionsEditor } from "@/components/admin/home-sections-editor";
 import { LandingContentEditor } from "@/components/admin/landing-content-editor";
+import { ProductColorsManager } from "@/components/admin/product-colors-manager";
 import { ProductImagesManager } from "@/components/admin/product-images-manager";
 import { WhatsAppMetricsPanel } from "@/components/admin/whatsapp-metrics-panel";
+import { normalizeProductColors } from "@/lib/product-colors";
 import { getPrimaryImageUrl, normalizeProductImages } from "@/lib/product-images";
 import { slugify } from "@/lib/slug";
 import type { HomeSectionsContent } from "@/types/home-sections";
 import type { LandingContent } from "@/types/landing-content";
-import { PRODUCT_CATEGORIES, type Product, type ProductImage } from "@/types/product";
+import {
+  PRODUCT_CATEGORIES,
+  type Product,
+  type ProductColor,
+  type ProductImage,
+} from "@/types/product";
 import type { WhatsAppMetrics } from "@/types/whatsapp-analytics";
 
 interface AdminDashboardProps {
@@ -30,6 +37,8 @@ interface ProductDraft {
   name: string;
   category: Product["category"];
   model: string;
+  storage: string;
+  colors: ProductColor[];
   images: ProductImage[];
   summary: string;
   highlightsText: string;
@@ -58,6 +67,8 @@ function emptyDraft(): ProductDraft {
     name: "",
     category: "Celular",
     model: "",
+    storage: "",
+    colors: [],
     images: [],
     summary: "",
     highlightsText: "",
@@ -81,6 +92,8 @@ function draftFromProduct(product: Product): ProductDraft {
     name: product.name,
     category: product.category,
     model: product.model ?? "",
+    storage: product.storage ?? "",
+    colors: normalizeProductColors(product.colors),
     images: normalizeProductImages(product.images, product.image),
     summary: product.summary,
     highlightsText: product.highlights.join(", "),
@@ -174,6 +187,8 @@ export function AdminDashboard({
         name: draft.name,
         category: draft.category,
         model: draft.model,
+        storage: draft.storage,
+        colors: normalizeProductColors(draft.colors),
         images: normalizedImages,
         summary: draft.summary,
         highlights: parseList(draft.highlightsText),
@@ -339,7 +354,7 @@ export function AdminDashboard({
           </aside>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="grid gap-1">
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Nombre
@@ -376,6 +391,17 @@ export function AdminDashboard({
                   value={draft.model}
                   onChange={(event) => updateDraft("model", event.target.value)}
                   placeholder="Ej: A1701 (Wi-Fi)"
+                  className="min-h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-900 outline-none focus:border-slate-900"
+                />
+              </label>
+              <label className="grid gap-1">
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Almacenamiento
+                </span>
+                <input
+                  value={draft.storage}
+                  onChange={(event) => updateDraft("storage", event.target.value)}
+                  placeholder="Ej: 256GB"
                   className="min-h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-900 outline-none focus:border-slate-900"
                 />
               </label>
@@ -529,6 +555,12 @@ Rendimiento: Chip A10X Fusion"
               enabled={catalogConnected}
               onUploadingChange={setImagesUploading}
               onChange={(images) => updateDraft("images", images)}
+            />
+
+            <ProductColorsManager
+              colors={draft.colors}
+              enabled={catalogConnected}
+              onChange={(colors) => updateDraft("colors", colors)}
             />
 
             <div className="mt-4 grid gap-2 sm:grid-cols-3">

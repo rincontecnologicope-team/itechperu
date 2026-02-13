@@ -37,6 +37,10 @@
   - `images: [{ url, order, isPrimary }]`
   - compatibilidad legacy con `image` como url principal
   - utilidades en `src/lib/product-images.ts`
+- Atributos comerciales editables por producto:
+  - `storage` (ej. 256GB)
+  - `colors: [{ name, hex, order }]` con picker RGB en admin
+  - fallback desde descripcion para mostrar datos cuando el producto antiguo no tenga campos nuevos
 - Capa de storage desacoplada para imagenes de producto:
   - `src/lib/product-image-storage.ts`
   - proveedor configurable via `IMAGE_STORAGE_PROVIDER` (`firebase` actual, preparado para `cloudinary`/`supabase`)

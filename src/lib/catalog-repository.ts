@@ -1,8 +1,10 @@
 import catalogSource from "@/data/products.json";
+import { normalizeProductColors } from "@/lib/product-colors";
 import { getPrimaryImageUrl, normalizeProductImages } from "@/lib/product-images";
 import type { Product } from "@/types/product";
 
-interface CatalogProductRaw extends Omit<Product, "images"> {
+interface CatalogProductRaw extends Omit<Product, "images" | "colors"> {
+  colors?: Product["colors"];
   images?: Product["images"];
 }
 
@@ -27,6 +29,8 @@ class JsonCatalogRepository implements CatalogRepository {
       });
       return {
         ...product,
+        storage: typeof product.storage === "string" && product.storage.trim() ? product.storage : undefined,
+        colors: normalizeProductColors(product.colors),
         images,
         image: primaryImage,
       } satisfies Product;

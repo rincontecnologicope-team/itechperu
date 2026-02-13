@@ -1,3 +1,4 @@
+import { normalizeProductColors } from "@/lib/product-colors";
 import { normalizeProductImages } from "@/lib/product-images";
 import { slugify } from "@/lib/slug";
 import {
@@ -13,6 +14,8 @@ interface ProductPayload {
   name?: unknown;
   category?: unknown;
   model?: unknown;
+  storage?: unknown;
+  colors?: unknown;
   summary?: unknown;
   images?: unknown;
   highlights?: unknown;
@@ -89,6 +92,8 @@ export function normalizeProductPayload(input: ProductPayload): Product {
   const id = normalizeString(input.id) || slugRaw;
   const summary = normalizeString(input.summary);
   const model = normalizeString(input.model);
+  const storage = normalizeString(input.storage);
+  const colors = normalizeProductColors(input.colors);
   const image = normalizeString(input.image);
   const images = normalizeProductImages(input.images, image);
   const primaryImage = images.find((item) => item.isPrimary)?.url ?? images[0]?.url ?? "";
@@ -121,6 +126,8 @@ export function normalizeProductPayload(input: ProductPayload): Product {
     name,
     category: normalizeCategory(input.category),
     model: model || undefined,
+    storage: storage || undefined,
+    colors,
     images,
     summary,
     highlights: normalizeStringArray(input.highlights),

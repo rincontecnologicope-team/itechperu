@@ -7,6 +7,12 @@ export interface ProductImage {
   isPrimary: boolean;
 }
 
+export interface ProductColor {
+  name: string;
+  hex: string;
+  order: number;
+}
+
 export const PRODUCT_CATEGORIES: ProductCategory[] = [
   "iPad",
   "Laptop",
@@ -21,6 +27,8 @@ export interface Product {
   name: string;
   category: ProductCategory;
   model?: string;
+  storage?: string;
+  colors: ProductColor[];
   images: ProductImage[];
   summary: string;
   highlights: string[];
