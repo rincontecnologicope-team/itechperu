@@ -1,0 +1,14 @@
+﻿<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F8FAFC"/>
+  <rect x="70" y="70" width="1060" height="490" rx="40" fill="url(#ogGrad)"/>
+  <defs>
+    <linearGradient id="ogGrad" x1="90" y1="80" x2="1080" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E2E8F0"/>
+      <stop offset="1" stop-color="#C7D2FE"/>
+    </linearGradient>
+  </defs>
+  <text x="130" y="260" fill="#0F172A" font-family="Segoe UI, Arial" font-size="72" font-weight="700">iTech Peru</text>
+  <text x="130" y="330" fill="#334155" font-family="Segoe UI, Arial" font-size="36" font-weight="500">Tecnologia importada de USA al mejor precio en Peru</text>
+  <rect x="130" y="380" width="320" height="66" rx="18" fill="#25D366"/>
+  <text x="180" y="423" fill="white" font-family="Segoe UI, Arial" font-size="30" font-weight="700">WhatsApp</text>
+</svg>

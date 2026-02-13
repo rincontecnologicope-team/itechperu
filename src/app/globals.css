@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #0f172a;
+  --color-muted: #475569;
+  --color-whatsapp: #25d366;
+  --color-whatsapp-dark: #1fa855;
+  --color-offer: #0ea5e9;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ffffff 0%, var(--color-background) 100%);
+  color: var(--color-text);
+  font-family: var(--font-body), "Segoe UI", sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading), "Segoe UI", sans-serif;
+}
+
+a {
+  -webkit-tap-highlight-color: transparent;
+}

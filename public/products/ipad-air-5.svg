@@ -1,0 +1,14 @@
+﻿<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#dbeafe"/>
+      <stop offset="100%" stop-color="#93c5fd"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="#F8FAFC"/>
+  <rect x="80" y="90" width="1040" height="720" rx="44" fill="url(#g)"/>
+  <rect x="160" y="200" width="880" height="460" rx="30" fill="#FFFFFF" fill-opacity="0.9"/>
+  <rect x="220" y="260" width="760" height="300" rx="22" fill="#0F172A" fill-opacity="0.07"/>
+  <text x="220" y="640" fill="#0F172A" font-family="Segoe UI, Arial" font-size="56" font-weight="700">iPad Air 5</text>
+  <text x="220" y="700" fill="#334155" font-family="Segoe UI, Arial" font-size="34" font-weight="500">Tablet importado de USA</text>
+</svg>
