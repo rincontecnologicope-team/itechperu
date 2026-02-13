@@ -7,14 +7,19 @@ interface ProductColorInput {
 }
 
 const HEX_COLOR_REGEX = /^#([0-9a-fA-F]{6})$/;
+const SHORT_HEX_COLOR_REGEX = /^#([0-9a-fA-F]{3})$/;
 
-function sanitizeHex(input: string): string | null {
+export function normalizeHexColor(input: string): string | null {
   const normalized = input.trim();
   if (!normalized) {
     return null;
   }
 
   const withHash = normalized.startsWith("#") ? normalized : `#${normalized}`;
+  if (SHORT_HEX_COLOR_REGEX.test(withHash)) {
+    const short = withHash.slice(1).toUpperCase();
+    return `#${short[0]}${short[0]}${short[1]}${short[1]}${short[2]}${short[2]}`;
+  }
   if (!HEX_COLOR_REGEX.test(withHash)) {
     return null;
   }
@@ -33,7 +38,7 @@ export function normalizeProductColors(input: unknown): ProductColor[] {
   const raw = toColorItems(input);
   const mapped = raw
     .map((item, index) => {
-      const hex = sanitizeHex(String(item.hex ?? ""));
+      const hex = normalizeHexColor(String(item.hex ?? ""));
       if (!hex) {
         return null;
       }
@@ -63,7 +68,7 @@ export function rgbToHex(r: number, g: number, b: number): string {
 }
 
 export function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const safeHex = sanitizeHex(hex);
+  const safeHex = normalizeHexColor(hex);
   if (!safeHex) {
     return null;
   }
