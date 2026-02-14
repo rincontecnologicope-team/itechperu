@@ -75,7 +75,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
           fill
           loading="lazy"
           sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 320px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-contain p-1.5 transition-transform duration-500 sm:object-cover sm:p-0 sm:group-hover:scale-105"
         />
       </Link>
 
