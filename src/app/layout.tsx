@@ -42,6 +42,13 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     images: [siteConfig.ogImage],
   },
+  icons: {
+    icon: [
+      { url: "/brand/itech-mark.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: [{ url: "/brand/itech-mark.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({
