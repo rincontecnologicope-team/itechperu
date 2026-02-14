@@ -16,7 +16,7 @@ import {
   splitProductDescriptionLines,
 } from "@/lib/product-description";
 import { normalizeProductColors } from "@/lib/product-colors";
-import { getPrimaryImageUrl } from "@/lib/product-images";
+import { getPrimaryImageUrl, normalizeProductImages } from "@/lib/product-images";
 import { getProductBySlug } from "@/lib/catalog";
 import { calculateSimulatedStock } from "@/lib/stock";
 import { createWhatsAppProductLink } from "@/lib/whatsapp";
@@ -72,7 +72,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const stock = calculateSimulatedStock(product.id, product.baseStock);
   const whatsappLink = createWhatsAppProductLink(product.name, product.price);
-  const primaryImage = getPrimaryImageUrl(product);
+  const galleryImages = Array.from(
+    new Set(normalizeProductImages(product.images, product.image).map((image) => image.url)),
+  );
+  const primaryImage = galleryImages[0] ?? getPrimaryImageUrl(product);
+  const secondaryImages = galleryImages.slice(1);
   const modelValue = (product.model?.trim() || extractModelFromSummary(product.summary) || "").trim();
   const storageValue =
     (product.storage?.trim() || extractStorageFromSummary(product.summary) || "").trim();
@@ -97,15 +101,37 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </Link>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_40px_rgba(15,23,42,0.08)]">
-            <Image
-              src={primaryImage}
-              alt={product.name}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 55vw"
-              className="object-contain p-2 sm:p-3 lg:object-cover lg:p-0"
-            />
+          <div className="grid gap-3">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_40px_rgba(15,23,42,0.08)]">
+              <Image
+                src={primaryImage}
+                alt={product.name}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                className="object-contain p-2 sm:p-3"
+              />
+            </div>
+
+            {secondaryImages.length > 0 ? (
+              <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 lg:grid lg:grid-cols-4 lg:overflow-visible">
+                {secondaryImages.map((imageUrl, index) => (
+                  <div
+                    key={`${imageUrl}-${index}`}
+                    className="relative aspect-[4/3] min-w-[46%] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt={`${product.name} - foto ${index + 2}`}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 1024px) 46vw, 18vw"
+                      className="object-contain p-1.5"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_18px_35px_rgba(15,23,42,0.08)] sm:p-8">
