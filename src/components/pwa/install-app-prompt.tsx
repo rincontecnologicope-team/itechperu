@@ -10,9 +10,6 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
-const DISMISS_STORAGE_KEY = "itech_install_prompt_dismissed_at_v2";
-const DISMISS_TTL_MS = 1000 * 60 * 60 * 24 * 3; // 3 days
-
 function isIosDevice(): boolean {
   if (typeof window === "undefined") {
     return false;
@@ -33,28 +30,6 @@ function isMobileViewport(): boolean {
     return false;
   }
   return window.matchMedia("(max-width: 1024px)").matches;
-}
-
-function wasDismissedRecently(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-  const raw = window.localStorage.getItem(DISMISS_STORAGE_KEY);
-  if (!raw) {
-    return false;
-  }
-  const dismissedAt = Number(raw);
-  if (!Number.isFinite(dismissedAt) || dismissedAt <= 0) {
-    return false;
-  }
-  return Date.now() - dismissedAt < DISMISS_TTL_MS;
-}
-
-function markDismissed() {
-  if (typeof window === "undefined") {
-    return;
-  }
-  window.localStorage.setItem(DISMISS_STORAGE_KEY, String(Date.now()));
 }
 
 export function InstallAppPrompt() {
@@ -88,7 +63,7 @@ export function InstallAppPrompt() {
   }, []);
 
   useEffect(() => {
-    if (isAdminRoute || !isMobile || isStandaloneMode() || wasDismissedRecently()) {
+    if (isAdminRoute || !isMobile || isStandaloneMode()) {
       setVisible(false);
       setIosHintVisible(false);
       setFallbackHintVisible(false);
@@ -109,7 +84,6 @@ export function InstallAppPrompt() {
       setVisible(false);
       setIosHintVisible(false);
       setFallbackHintVisible(false);
-      markDismissed();
     };
 
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
@@ -148,7 +122,6 @@ export function InstallAppPrompt() {
     const result = await deferredPrompt.userChoice;
 
     if (result.outcome === "accepted") {
-      markDismissed();
       setVisible(false);
       setDeferredPrompt(null);
       return;
@@ -160,7 +133,6 @@ export function InstallAppPrompt() {
 
   function closePrompt() {
     setVisible(false);
-    markDismissed();
   }
 
   return (
