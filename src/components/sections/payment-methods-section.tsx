@@ -71,10 +71,11 @@ const MOBILE_BRANDS: Record<string, BrandVisual> = {
     accentBarClass: "from-emerald-600 to-teal-400",
     chipClass: "border-emerald-200 bg-emerald-50",
     textClass: "text-emerald-700",
-    logoSrc: "/brands/plin-official.png",
+    logoSrc: "/brands/plin-app-icon.png",
     logoAlt: "Logo oficial Plin",
-    logoFrameClass: "h-9 w-9 rounded-xl",
-    logoImageClass: "h-7 w-7 object-contain",
+    logoBgClass: "bg-transparent",
+    logoFrameClass: "h-10 w-10 rounded-xl",
+    logoImageClass: "h-full w-full object-cover",
   },
 };
 
