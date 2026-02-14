@@ -13,6 +13,8 @@ import {
 } from "@/lib/product-images";
 import type { ProductImage } from "@/types/product";
 
+const DRAG_IMAGE_INDEX_MIME = "application/x-itech-image-index";
+
 interface ProductImagesManagerProps {
   images: ProductImage[];
   enabled: boolean;
@@ -32,11 +34,33 @@ function extractImageFiles(fileList: FileList | null): File[] {
 }
 
 function hasFilePayload(event: DragEvent<HTMLElement> | globalThis.DragEvent): boolean {
+  const filesCount = event.dataTransfer?.files?.length ?? 0;
+  if (filesCount > 0) {
+    return true;
+  }
   const types = event.dataTransfer?.types;
   if (!types) {
     return false;
   }
-  return Array.from(types).includes("Files");
+  return Array.from(types).some((type) => type === "Files" || /file/i.test(type));
+}
+
+function getDragSourceIndex(
+  event: DragEvent<HTMLElement>,
+  fallbackIndex: number | null,
+): number | null {
+  const fromCustomMime = event.dataTransfer.getData(DRAG_IMAGE_INDEX_MIME);
+  const fromText = event.dataTransfer.getData("text/plain");
+  const raw = fromCustomMime || fromText;
+  if (!raw) {
+    return fallbackIndex;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  if (Number.isNaN(parsed)) {
+    return fallbackIndex;
+  }
+  return parsed;
 }
 
 export function ProductImagesManager({
@@ -56,6 +80,9 @@ export function ProductImagesManager({
 
   useEffect(() => {
     function preventBrowserFileOpen(event: globalThis.DragEvent) {
+      if (!hasFilePayload(event)) {
+        return;
+      }
       event.preventDefault();
     }
 
@@ -115,17 +142,19 @@ export function ProductImagesManager({
 
   function handleDrop(event: DragEvent<HTMLElement>, targetIndex: number) {
     event.preventDefault();
+    event.stopPropagation();
     const droppedFiles = extractImageFiles(event.dataTransfer.files);
     if (droppedFiles.length > 0) {
       void uploadFiles(droppedFiles);
       return;
     }
 
-    if (dragIndex === null || dragIndex === targetIndex) {
+    const sourceIndex = getDragSourceIndex(event, dragIndex);
+    if (sourceIndex === null || sourceIndex === targetIndex) {
       setDragIndex(null);
       return;
     }
-    const next = moveProductImage(items, dragIndex, targetIndex);
+    const next = moveProductImage(items, sourceIndex, targetIndex);
     onChange(next);
     setPendingOrderSave(true);
     setStatus("Orden actualizado. Presiona 'Guardar orden' para confirmar.");
@@ -138,18 +167,20 @@ export function ProductImagesManager({
         isFileDragOver ? "border-emerald-400 bg-emerald-50/40" : "border-slate-200 bg-slate-50"
       }`}
       onDragOver={(event) => {
+        if (!hasFilePayload(event)) {
+          return;
+        }
         event.preventDefault();
         event.stopPropagation();
-        if (hasFilePayload(event)) {
-          setIsFileDragOver(true);
-        }
+        setIsFileDragOver(true);
       }}
       onDragEnter={(event) => {
+        if (!hasFilePayload(event)) {
+          return;
+        }
         event.preventDefault();
         event.stopPropagation();
-        if (hasFilePayload(event)) {
-          setIsFileDragOver(true);
-        }
+        setIsFileDragOver(true);
       }}
       onDragLeave={(event) => {
         const related = event.relatedTarget as Node | null;
@@ -158,6 +189,9 @@ export function ProductImagesManager({
         }
       }}
       onDrop={(event) => {
+        if (!hasFilePayload(event)) {
+          return;
+        }
         event.preventDefault();
         event.stopPropagation();
         const droppedFiles = extractImageFiles(event.dataTransfer.files);
@@ -211,9 +245,18 @@ export function ProductImagesManager({
             <article
               key={`${item.url}-${index}`}
               draggable={enabled}
-              onDragStart={() => setDragIndex(index)}
+              onDragStart={(event) => {
+                setDragIndex(index);
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.dropEffect = "move";
+                event.dataTransfer.setData(DRAG_IMAGE_INDEX_MIME, String(index));
+                event.dataTransfer.setData("text/plain", String(index));
+              }}
               onDragEnd={() => setDragIndex(null)}
-              onDragOver={(event) => event.preventDefault()}
+              onDragOver={(event) => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+              }}
               onDrop={(event) => handleDrop(event, index)}
               className={`relative overflow-hidden rounded-xl border ${
                 item.isPrimary ? "border-emerald-400" : "border-slate-200"
