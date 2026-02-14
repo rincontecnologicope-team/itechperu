@@ -137,13 +137,13 @@ export function InstallAppPrompt() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
+      exit={{ opacity: 0, y: -14 }}
       transition={{ duration: 0.28 }}
-      className="pointer-events-none fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom,0px)+12px)] z-[80] mx-auto w-[min(95vw,430px)]"
+      className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top,0px)+4.25rem)] z-[80] flex justify-center px-3"
     >
-      <div className="pointer-events-auto relative overflow-hidden rounded-2xl border border-amber-200/90 bg-[linear-gradient(135deg,#fff8e8_0%,#f6e9c8_40%,#eed7a0_100%)] p-4 shadow-[0_24px_45px_rgba(120,84,20,0.30)]">
+      <div className="pointer-events-auto relative w-full max-w-[430px] overflow-hidden rounded-2xl border border-amber-200/90 bg-[linear-gradient(135deg,#fff8e8_0%,#f6e9c8_40%,#eed7a0_100%)] p-4 shadow-[0_24px_45px_rgba(120,84,20,0.30)]">
         <div className="absolute inset-0 gold-install-shine" aria-hidden="true" />
         <button
           type="button"
