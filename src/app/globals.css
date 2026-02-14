@@ -66,3 +66,29 @@ a {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.gold-install-button {
+  border: 1px solid rgba(184, 134, 38, 0.75);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 250, 220, 0.95) 0%, rgba(255, 224, 145, 0.9) 35%, rgba(222, 173, 84, 0.95) 100%);
+  box-shadow:
+    0 12px 24px rgba(184, 134, 38, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.gold-install-shine {
+  background: linear-gradient(115deg, transparent 15%, rgba(255, 255, 255, 0.45) 45%, transparent 75%);
+  background-size: 220% 100%;
+  animation: gold-shimmer 2.4s linear infinite;
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+@keyframes gold-shimmer {
+  0% {
+    background-position: 130% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}

@@ -13,12 +13,58 @@ function normalizeWhatsAppPhone(phone: string): string {
   return digits;
 }
 
+export interface WhatsAppProductContext {
+  model?: string;
+  storage?: string;
+  color?: string;
+  productUrl?: string;
+}
+
+function cleanValue(value: string | undefined): string | undefined {
+  const normalized = value?.replace(/\s+/g, " ").trim();
+  return normalized ? normalized : undefined;
+}
+
 export function createWhatsAppProductLink(
   productName: string,
   price: number,
-  phone: string = siteConfig.whatsappPhone,
+  contextOrPhone?: WhatsAppProductContext | string,
+  phoneArg?: string,
 ): string {
-  const message = `Hola quiero informacion del ${productName} precio S/ ${formatPenPlain(price)}`;
+  const context: WhatsAppProductContext | undefined =
+    typeof contextOrPhone === "string" ? undefined : contextOrPhone;
+  const phone =
+    typeof contextOrPhone === "string"
+      ? contextOrPhone
+      : phoneArg ?? siteConfig.whatsappPhone;
+  const safeProductName = cleanValue(productName) ?? "producto";
+  const parts = [
+    "Hola, quiero informacion de este equipo:",
+    `${safeProductName}`,
+    `Precio: S/ ${formatPenPlain(price)}`,
+  ];
+
+  const model = cleanValue(context?.model);
+  const storage = cleanValue(context?.storage);
+  const color = cleanValue(context?.color);
+  const productUrl = cleanValue(context?.productUrl);
+
+  if (model) {
+    parts.push(`Modelo: ${model}`);
+  }
+  if (storage) {
+    parts.push(`Almacenamiento: ${storage}`);
+  }
+  if (color) {
+    parts.push(`Color: ${color}`);
+  }
+  if (productUrl) {
+    parts.push(`Link: ${productUrl}`);
+  }
+
+  parts.push("Me gustaria cerrar compra hoy. Quedo atento.");
+
+  const message = parts.join("\n");
   const safePhone = normalizeWhatsAppPhone(phone);
 
   return `https://wa.me/${safePhone}?text=${encodeURIComponent(message)}`;

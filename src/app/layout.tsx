@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
+import { InstallAppPrompt } from "@/components/pwa/install-app-prompt";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
     template: "%s | iTech Peru",
   },
   description: siteConfig.description,
+  manifest: "/manifest.webmanifest",
   openGraph: {
     title: "iTech Peru",
     description: siteConfig.description,
@@ -45,9 +47,11 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/brand/itech-mark.svg", type: "image/svg+xml" },
+      { url: "/pwa/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/favicon.ico" },
     ],
     shortcut: [{ url: "/brand/itech-mark.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/pwa/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -60,6 +64,7 @@ export default function RootLayout({
     <html lang="es-PE">
       <body className={`${manrope.variable} ${spaceGrotesk.variable}`}>
         {children}
+        <InstallAppPrompt />
       </body>
     </html>
   );

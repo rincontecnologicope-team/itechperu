@@ -20,6 +20,7 @@ import { formatPen } from "@/lib/format";
 import { calculateSimulatedStock } from "@/lib/stock";
 import { createWhatsAppProductLink } from "@/lib/whatsapp";
 import { WhatsAppLink } from "@/components/ui/whatsapp-link";
+import { siteConfig } from "@/config/site";
 import type { Product } from "@/types/product";
 
 interface ProductCardProps {
@@ -38,7 +39,6 @@ export function ProductCard({ product, index }: ProductCardProps) {
     () => calculateSimulatedStock(product.id, product.baseStock),
     [product.baseStock, product.id],
   );
-  const whatsappLink = createWhatsAppProductLink(product.name, product.price);
   const primaryImage = getPrimaryImageUrl(product);
   const modelValue = (product.model?.trim() || extractModelFromSummary(product.summary) || "").trim();
   const storageValue =
@@ -54,6 +54,14 @@ export function ProductCard({ product, index }: ProductCardProps) {
     const cleanLines = colorsValue.length > 0 ? removeColorsLine(withoutStorage) : withoutStorage;
     return cleanLines.slice(0, 4);
   }, [colorsValue.length, modelValue, product.summary, storageValue]);
+  const productUrl = `${siteConfig.url}/producto/${product.slug}`;
+  const preferredColor = colorsValue[0]?.name || colorsValue[0]?.hex;
+  const whatsappLink = createWhatsAppProductLink(product.name, product.price, {
+    model: modelValue,
+    storage: storageValue,
+    color: preferredColor,
+    productUrl,
+  });
 
   return (
     <motion.article
@@ -67,15 +75,16 @@ export function ProductCard({ product, index }: ProductCardProps) {
     >
       <Link
         href={`/producto/${product.slug}`}
-        className="relative block aspect-[4/3] overflow-hidden bg-slate-100"
+        className="relative block aspect-square overflow-hidden bg-slate-100"
       >
         <Image
           src={primaryImage}
           alt={product.name}
           fill
           loading="lazy"
-          sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 320px"
-          className="object-contain p-1.5 transition-transform duration-500 sm:object-cover sm:p-0 sm:group-hover:scale-105"
+          sizes="(max-width: 640px) 48vw, (max-width: 1024px) 31vw, (max-width: 1440px) 24vw, 320px"
+          quality={84}
+          className="object-contain p-2 transition-transform duration-500 group-hover:scale-[1.02]"
         />
       </Link>
 
@@ -145,6 +154,11 @@ export function ProductCard({ product, index }: ProductCardProps) {
           >
             Stock limitado: {stock} unidades
           </p>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold text-slate-600">
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1">Garantia real</span>
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1">Contraentrega Lima</span>
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1">Boleta</span>
+          </div>
         </div>
 
         <div className="mt-4 grid gap-2">

@@ -8,6 +8,10 @@
   - Testimonios con slider y scroll snap
   - Metodos de pago
   - FAQ con acordeon
+- Conversion WhatsApp reforzada:
+  - Mensaje de WhatsApp por producto incluye modelo, almacenamiento, color y link directo del producto.
+  - CTA sticky en detalle de producto para movil (`src/components/ui/product-sticky-whatsapp-bar.tsx`).
+  - Tracking diferenciado por origen (`product_detail_whatsapp`, `product_detail_sticky_whatsapp`, etc.).
 
 ## Panel admin
 
@@ -44,3 +48,6 @@
 - Capa de storage desacoplada para imagenes de producto:
   - `src/lib/product-image-storage.ts`
   - proveedor configurable via `IMAGE_STORAGE_PROVIDER` (`firebase` actual, preparado para `cloudinary`/`supabase`)
+- Performance de imagenes:
+  - Compresion cliente antes de upload en admin (`src/components/admin/product-images-manager.tsx`)
+  - Convierte a WebP y limita lado maximo para acelerar carga en movil.

@@ -1,0 +1,67 @@
+const CACHE_NAME = "itech-peru-static-v1";
+const STATIC_ASSETS = [
+  "/",
+  "/manifest.webmanifest",
+  "/pwa/icon-192.png",
+  "/pwa/icon-512.png",
+  "/pwa/apple-touch-icon.png",
+  "/brand/itech-mark.svg",
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)).catch(() => undefined),
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .catch(() => undefined),
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  if (request.method !== "GET") {
+    return;
+  }
+
+  const url = new URL(request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+  if (!isSameOrigin) {
+    return;
+  }
+
+  const isStaticAsset =
+    url.pathname.startsWith("/_next/static/") ||
+    /\.(?:png|jpg|jpeg|webp|svg|ico|css|js|woff2?)$/i.test(url.pathname);
+  if (!isStaticAsset) {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(request).then((response) => {
+        if (response && response.status === 200) {
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned)).catch(() => undefined);
+        }
+        return response;
+      });
+    }),
+  );
+});

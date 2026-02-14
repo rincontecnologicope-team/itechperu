@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ProductStickyWhatsAppBar } from "@/components/ui/product-sticky-whatsapp-bar";
 import { WhatsAppLink } from "@/components/ui/whatsapp-link";
 import { siteConfig } from "@/config/site";
 import { formatPen } from "@/lib/format";
@@ -71,7 +72,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   const stock = calculateSimulatedStock(product.id, product.baseStock);
-  const whatsappLink = createWhatsAppProductLink(product.name, product.price);
   const galleryImages = Array.from(
     new Set(normalizeProductImages(product.images, product.image).map((image) => image.url)),
   );
@@ -89,10 +89,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
     : splitProductDescriptionLines(product.summary);
   const withoutStorage = storageValue ? removeStorageLine(withoutModel) : withoutModel;
   const descriptionLines = colorsValue.length > 0 ? removeColorsLine(withoutStorage) : withoutStorage;
+  const productUrl = `${siteConfig.url}/producto/${product.slug}`;
+  const preferredColor = colorsValue[0]?.name || colorsValue[0]?.hex;
+  const whatsappLink = createWhatsAppProductLink(product.name, product.price, {
+    model: modelValue,
+    storage: storageValue,
+    color: preferredColor,
+    productUrl,
+  });
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]">
-      <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-8 sm:px-6 sm:pt-10">
+      <section className="mx-auto w-full max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-12 sm:pt-10">
         <Link
           href="/#catalogo"
           className="inline-flex rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600"
@@ -102,13 +110,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
           <div className="grid gap-3">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_40px_rgba(15,23,42,0.08)]">
+            <div className="relative aspect-square overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_40px_rgba(15,23,42,0.08)]">
               <Image
                 src={primaryImage}
                 alt={product.name}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 55vw"
+                quality={88}
                 className="object-contain p-2 sm:p-3"
               />
             </div>
@@ -118,7 +127,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 {secondaryImages.map((imageUrl, index) => (
                   <div
                     key={`${imageUrl}-${index}`}
-                    className="relative aspect-[4/3] min-w-[46%] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                    className="relative aspect-square min-w-[46%] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
                   >
                     <Image
                       src={imageUrl}
@@ -126,6 +135,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       fill
                       loading="lazy"
                       sizes="(max-width: 1024px) 46vw, 18vw"
+                      quality={82}
                       className="object-contain p-1.5"
                     />
                   </div>
@@ -219,6 +229,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </li>
               ))}
             </ul>
+            <div className="mt-6 grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Compra segura iTech Peru
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700">
+                  Garantia funcional
+                </span>
+                <span className="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700">
+                  Contraentrega en Lima
+                </span>
+                <span className="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700">
+                  Importado de USA
+                </span>
+                <span className="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700">
+                  Boleta y soporte post venta
+                </span>
+              </div>
+            </div>
 
             <div className="mt-7 grid gap-3">
               <WhatsAppLink
@@ -245,6 +274,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </article>
         </div>
       </section>
+      <ProductStickyWhatsAppBar
+        href={whatsappLink}
+        price={product.price}
+        productId={product.id}
+        productName={product.name}
+      />
     </main>
   );
 }

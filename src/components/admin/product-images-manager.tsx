@@ -14,6 +14,9 @@ import {
 import type { ProductImage } from "@/types/product";
 
 const DRAG_IMAGE_INDEX_MIME = "application/x-itech-image-index";
+const MAX_UPLOAD_DIMENSION = 1600;
+const COMPRESSED_MIME_TYPE = "image/webp";
+const COMPRESSED_QUALITY = 0.86;
 
 interface ProductImagesManagerProps {
   images: ProductImage[];
@@ -63,6 +66,69 @@ function getDragSourceIndex(
   return parsed;
 }
 
+function loadImageElement(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new window.Image();
+    image.decoding = "async";
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error(`No se pudo leer ${file.name}`));
+    };
+    image.src = objectUrl;
+  });
+}
+
+async function optimizeImageForUpload(file: File): Promise<File> {
+  if (typeof window === "undefined" || !file.type.startsWith("image/")) {
+    return file;
+  }
+
+  try {
+    const image = await loadImageElement(file);
+    const maxSide = Math.max(image.naturalWidth, image.naturalHeight);
+    const scale = maxSide > MAX_UPLOAD_DIMENSION ? MAX_UPLOAD_DIMENSION / maxSide : 1;
+    const width = Math.max(1, Math.round(image.naturalWidth * scale));
+    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { alpha: true });
+    if (!context) {
+      return file;
+    }
+
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.drawImage(image, 0, 0, width, height);
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, COMPRESSED_MIME_TYPE, COMPRESSED_QUALITY);
+    });
+
+    if (!blob) {
+      return file;
+    }
+
+    if (blob.size >= file.size * 0.95 && scale === 1) {
+      return file;
+    }
+
+    const nextName = file.name.replace(/\.[a-z0-9]+$/i, "") || "imagen";
+    return new File([blob], `${nextName}.webp`, {
+      type: COMPRESSED_MIME_TYPE,
+      lastModified: Date.now(),
+    });
+  } catch {
+    return file;
+  }
+}
+
 export function ProductImagesManager({
   images,
   enabled,
@@ -103,11 +169,14 @@ export function ProductImagesManager({
     onUploadingChange?.(true);
     setIsFileDragOver(false);
     setError("");
-    setStatus(`Subiendo ${files.length} imagen(es)...`);
+    setStatus(`Optimizando y subiendo ${files.length} imagen(es)...`);
 
     try {
       const uploadedUrls: string[] = [];
-      for (const file of files) {
+      for (let index = 0; index < files.length; index += 1) {
+        const rawFile = files[index];
+        const file = await optimizeImageForUpload(rawFile);
+        setStatus(`Subiendo ${index + 1}/${files.length}: ${rawFile.name}`);
         const formData = new FormData();
         formData.append("image", file);
         const response = await fetch("/api/admin/upload", {
